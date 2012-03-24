@@ -23,3 +23,16 @@ generates the starting world.
 
 the guid's set in the pickle match the guid's stored in control.tsx found in
 tilesets.
+
+
+
+RUNNING:
+
+after you download mh, you will need to initialize the world pickle.  simply
+run 'buildworld.sh'.  this will create two files for the pickle, then you can
+run 'run.py' to get going.
+
+run.py contains a few game modes that you can try.  simply uncomment the mode
+to try in the section near the bottom of the file.
+
+HAVE FUN!
