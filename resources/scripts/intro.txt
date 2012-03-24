@@ -1,0 +1,31 @@
+#music:relent.ogg
+#image-alpha:portrait0.png
+You are Rat, the bounty hunter.
+You've arrived at this village after hearing reports of creatures in the area.
+These creatures are unlike anything the people have ever seen before.
+
+#image-alpha:beast.png
+They are called "the Disorder", and breed and mutate at a supernatural speed.
+A few weeks ago a mine just outside the town was opened and released the Disorder.
+You have arrived during the day.
+The night is not safe.
+
+#image:+cave_bluelarge.png
+It has been a few weeks since the disorder escaped from the caves and dispersed.
+The towns people know little about them.  Only their screams can be heard.
+
+#image:+2_fog_dwell_peaks.png
+The town, set in a the mountain, is protected and so far the Disorder have not ventured beyond these peaks.
+
+#image-alpha:portrait1.png
+The first hunter was a local townsman, Ax.
+He reasoned that since they waited until night to escape the cave, that they must not like the the sun.
+This has been verified since they have not been seen by locals during the day, but their cries can be heard at night.
+
+#image:+cave_bluelarge.png
+A week ago Ax left to investigate the caves.
+He has not returned.
+
+#image-alpha:portrait0.png
+You first must find the fate the the townsman, Ax.
+Then, you may build your camp and find an apprentice.

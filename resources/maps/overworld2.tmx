@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="100" height="50" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="forestground06dv5_0" tilewidth="32" tileheight="32">
+  <image source="../tilesets/32x32-themanaworld/forestground06dv5_0.png" width="629" height="679"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="100" height="50">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA+3DMQ0AAAwDoM5U/UurjD2Q0Euqqqqqqqqqqqqqqqqqqqqqqqqq6vsBTGZCCCBOAAA=
+  </data>
+ </layer>
+ <layer name="Tile Layer 2" width="100" height="50">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA+3DMQ0AAAwDoE5V/TurjD2Q0Euqqqqqqqqqqqqqqqqqqqqqqqqq6vsBwGuczCBOAAA=
+  </data>
+ </layer>
+ <layer name="Tile Layer 3" width="100" height="50">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA+3DMQ0AAAwDoE5K/ZusjD2Q0Euqqqqqqqqqqqqqqqqqqqqqqqqq6vsBIKwwwCBOAAA=
+  </data>
+ </layer>
+ <layer name="Tile Layer 4" width="100" height="50">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA+3DMQ0AAAwDoE5Z/buqjD2Q0Euqqqqqqqqqqqqqqqqqqqqqqqqq6vsB5RjZXCBOAAA=
+  </data>
+ </layer>
+</map>

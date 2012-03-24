@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="32" height="32" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="16x16-forest-town" tilewidth="16" tileheight="16">
+  <image source="../tilesets/16x16-forest-town.png" width="272" height="304"/>
+  <tile id="14">
+   <properties>
+    <property name="Type" value="CobbleRoad"/>
+   </properties>
+  </tile>
+  <tile id="24">
+   <properties>
+    <property name="Type" value="Grass"/>
+   </properties>
+  </tile>
+  <tile id="111">
+   <properties>
+    <property name="name" value="stick"/>
+   </properties>
+  </tile>
+ </tileset>
+ <tileset firstgid="324" source="../tilesets/controlset.tsx"/>
+ <layer name="Lower Full Tile" width="32" height="32">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA+3PMREAMAzEsMBNIbToGxT5RYPPs7qqztSh3+kFn3Lz8/Pz8/Pz8/Pz8/Pz82/+A/H5aSgAEAAA
+  </data>
+ </layer>
+ <layer name="Lower Partial Tile" width="32" height="32">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA+3QUQnAMBCD4UqplEqZhEqolEmplElp2G5QBRcK/weBe0yuFADAKfqXW5nK1d2FksX+R2lKVYa7U6bY/+7+/+DulCn2j+2ezj7ZYnNz9wAAnGsBj/pdPQAQAAA=
+  </data>
+ </layer>
+ <layer name="Upper Partial Tile" width="32" height="32" visible="0">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA+3BAQ0AAADCoPdPbQ8HFAAAAPBuEQAcxwAQAAA=
+  </data>
+ </layer>
+ <layer name="Control" width="32" height="32" visible="0">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA+3BAQ0AAADCoPdPbQ8HFAAAAPBuEQAcxwAQAAA=
+  </data>
+ </layer>
+</map>

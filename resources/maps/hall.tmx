@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="14" height="12" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="16x16-indoor" tilewidth="16" tileheight="16">
+  <image source="../tilesets/16x16-indoor.png" width="112" height="192"/>
+ </tileset>
+ <tileset firstgid="85" name="mechanics" tilewidth="16" tileheight="16">
+  <image source="../tilesets/mechanics.png" width="128" height="128"/>
+ </tileset>
+ <layer name="Lower Full Tile" width="14" height="12">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA2NgYGCQBWI5IrE8AwKwk4iHmj5tKK2DhOWJ0IcLjOrDDkDhLAdlw9KZLpQPAFR76A+gAgAA
+  </data>
+ </layer>
+ <layer name="Lower Partial Tile" width="14" height="12">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA2NgIB+oEKFGE0qroeljAWJWNMyGRT+6Pm4g5kHDvEhqTIHYDIs+YoEaYSVwO3DZR4q5xOgb7vbhAwBye7XIoAIAAA==
+  </data>
+ </layer>
+ <layer name="Upper Partial Tile" width="14" height="12">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA2NggAAtAjS9gR4Q6wMxHx3sGLVv8AIABatTqaACAAA=
+  </data>
+ </layer>
+ <layer name="Control" width="14" height="12">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA5vCwMAwhUxMDAhHYpOiDxkMlD4QDmUg3t+jcuTJwXAYA2ZYAwAjkJgooAIAAA==
+  </data>
+ </layer>
+</map>

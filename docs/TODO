@@ -1,0 +1,48 @@
+lib2d planned features:
+
+8-bit surfaces on the scrolling buffers makes a very fast renderer
+
+allow multiple concurrent gamestates
+integrate dialogs from mh and allow customization(?)
+the sheetloader should be updated to only support the grid format
+the grid utilities should be updated
+
+game objects need a new system that has special handling of pickles:
+    pygame objects cannot be pickled, but the actors can
+    pygame objects need a way to load resources off disk from a pickle
+
+
+why pickles?
+    cause it would not make sense to keep all objects in memory.
+    makes a system of persistence that is built in python
+
+
+When loading only the tree should be available at first.
+
+zombie survival simulation
+random game each time
+hard rules…sandbox?
+score given.  play time should be about an hour?
+fallout style missions:
+	random encounters
+	immersive, rather than focused on action
+use of goap ai to simulate npcs
+how about…turn based, rougelike?
+features from movies/tv that should be in game:
+	barricading using objects in room (push chair to wall?)
+	stockpiling items
+	morale bonus for hot shower
+	head shots?
+	health items: anti-biotics, pain pills, steroids, etc
+	ability to use objects as weapons
+	safe houses
+	rumors
+	party forming
+
+
+mega maps:
+divide large maps into regions
+regions can be loaded from disk, complete with geometry
+entities in the game world can request regions be loaded into memory
+renderer should be able to render many regions simutaneously
+the tilesets 'images' can be loaded on the fly without affecting metadata

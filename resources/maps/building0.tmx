@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="12" height="8" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="16x16-indoor" tilewidth="16" tileheight="16">
+  <image source="../tilesets/16x16-indoor.png" width="112" height="192"/>
+  <tile id="6">
+   <properties>
+    <property name="walkSound" value="wood0.wav"/>
+   </properties>
+  </tile>
+ </tileset>
+ <tileset firstgid="85" source="../tilesets/controlset.tsx"/>
+ <layer name="Lower Full Tile" width="12" height="8">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA2NgYGCQBWI5AlieAQHYicQjVT0pAAAT5PqugAEAAA==
+  </data>
+ </layer>
+ <layer name="Lower Partial Tile" width="12" height="8">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA2NggAA9INYHYksGTGCLRcwUiM2A2AGLnAsWMRjwA2J/IA6A4kAgDsKjnlggBcTSVDAHBNSpZA4xAACX/ckTgAEAAA==
+  </data>
+ </layer>
+ <layer name="Upper 1 Partial Tile" width="12" height="8">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA2NgGAUDCQBH0bqIgAEAAA==
+  </data>
+ </layer>
+ <layer name="Upper 2 Partial Tile" width="12" height="8">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA2NgIB2oEKFGjUL1wkAsQiXzFSh0jzYaxiamS4SZ2AAADLjiWoABAAA=
+  </data>
+ </layer>
+ <layer name="Upper 3 Partial Tile" width="12" height="8">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA2NgoD2QIUIN3yA2n5YAAGlOsfuAAQAA
+  </data>
+ </layer>
+ <layer name="Control" width="12" height="8" visible="0">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAAwtlYGAIJREzYOEjA3Q16HKEzCQWDFb16LiGEbccAIQ2nA2AAQAA
+  </data>
+ </layer>
+</map>

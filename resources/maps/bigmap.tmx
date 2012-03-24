@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="96" height="64" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="16x16-forest-town" tilewidth="16" tileheight="16">
+  <image source="../tilesets/16x16-forest-town.png" width="272" height="304"/>
+  <tile id="14">
+   <properties>
+    <property name="Type" value="CobbleRoad"/>
+   </properties>
+  </tile>
+  <tile id="24">
+   <properties>
+    <property name="Type" value="Grass"/>
+   </properties>
+  </tile>
+ </tileset>
+ <tileset firstgid="324" source="../tilesets/controlset.tsx"/>
+ <layer name="Lower Full Tile" width="96" height="64">
+  <data encoding="base64" compression="zlib">
+   eJzt2VlOwzAUheE8og70ma4BKOwKlgBrYpHYIpaMdX094JIm9490VEWxO3w9aUw4T9N0Jr/y9Y9Z+rPeYvDH33Lwx99y8MffcvDH33Lwx99y8Mffctbk/7Bw8Mf/1v3D1uJaOwd/PU8uzy4Xl5dKe22Of813l7cBjxb8jy57l53LfaW/NufD5XPQowX/0RnRe0v9Pw1I7rnpf/+1s2aMZu/T2+9S1uwvbS3HW/x7+71l/3TtcomOPSZ5nZM7J07KMfov+/u1y8HlbvpZu+yF70byl9acwT/e6H/ZP7d2PM7fi+QvzQv+8Xj6r/tr0fy13/+cP/1vWzt6f99v7e9baX48nv7X9z+3fgnnQbhGlObG4+n/GP/DnFr/MJ7+j+u/dk9I6v8uGUP/+/xrUjOX/stu1078en99/1v0l7oatjAvt996nuBf9k/Xm6X93t8s/GX/9J5Euv5Mj+M/3j++txC84/3W/5HhX+/fu/5Z6lq8dv9rrHPof53/Uhllj3+7O/7b6D3++OOPP/74r8V/i8Eff8vBH3/LwR9/y8Eff8vBH3/LwR9/y8Eff8vBH3/Lwd+O/ze1nnZN
+  </data>
+ </layer>
+ <layer name="Lower Partial Tile" width="96" height="64">
+  <data encoding="base64" compression="zlib">
+   eJztmDtOxDAURWcHNFCh6YZZCrACvhU0SAghSiSaaWFgF0BDS0ePWBaOEgvLshPbcXx5nnukqzhObKKTFzPJbEZMPtAXsOHQPxb6x0L/WOgfC/1joX8s9I+F/rHQPxb6x0L/WOgfizT/eyqLbrutstO1l10Wxr6vvTTG+s7xjcuNNP/7Vg5UDnv2+841+/R2KLmR5r80RyrHKifGNqXd5NQxv3T/LwHnXKhcJszduL9JGOfj2tEn3f+UXGWe78HRR/9+7jPPJ73+31Teu3bqmhLDo8qTylrlPMN8NdT/F+jvhqxFZ7P2ful7ZrefHWOk+UcR4t9V30PQfxgh/wvofzpY/1hY/3nZjTy/lvrfGhkUtfgvSWyN90H/f5jvYaXg+p+XkO92Jqz/Mnxa+/Nuy/rHor8F2VkbcX1fGEKa/9h1IxX7OZgKaf5rg/5b+n5TTfnM0T+Wmvy7angeuT/E2Pf3//Zev+lIrP879AVkRKL/sfTdv9diV9Ei0f+P0b61jpm/Vb4dffZ4zWrkNaUi0f8Q9j3RlHqnikGqf13TK89xs99eb5pjrmcAgVT/tUD/WOgfC/1joX8s9I+F/rHQPxb6x0L/WOgfC/1joX8s9I+F/rHQPxb6x0L/WOgfC/1jKe3/F6tyb18=
+  </data>
+ </layer>
+ <layer name="Upper Partial Tile" width="96" height="64">
+  <data encoding="base64" compression="zlib">
+   eJzt2kFOwzAQheEBegKgNwhdtNkA4h5wFZBgww4kOABIcBYux1jYqjW1nEDSOMj/Jz01rtvInTqJU1UEAAAAAAAAAID/aa25nOA9EHk07Y2m1ZxrLvxz15qbzD5S78Gue81D6UFU7EXzWnoQFfvQfPrtrnMKptPn2sn1dRxfpm2vnbbG68RrMJ5WtrUNCTZRf5vozx0THC/7lTsm4j5MLz5egLm51dyVHkTFnjTPpQdRsTfNe+lBYBD7ux0AdOl73rD3r11t1lTjsfe2XW2HNdVwQ+Zwbk3Ftbof5nBZ3BcAQL1Sa5Xfrl8ONIc+R5qF5sQH+3cs23qHNEL9Y2OsyeN57ua4m+uuxqfyU+8rE+qf9tf/AqXmearm8XdRu/i8HLbdfF3K7jk7tBufRaI/9MU1b0yW/vFsgs83d6EOK78dar8y27nYfYTY/tT+AAAAAAAAAAAAAMzHNw8kKXs=
+  </data>
+ </layer>
+ <layer name="Control" width="96" height="64" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJzt2etugjAYgGHHte0SdriBnTfv/68xSxPWfaWtY1bD8yREMAHTF0TA3Q4AAAAAgMjtzdhp6/TfFvtvWT6maLzz+bugQamR70+/NM6nqX28aZ3nSf9Lov9PpXPKf3+e/uPpP5a+saUGazbSP3Zq/95u+sfSuF+C682W/q+V9Wrb2nr/JbX+LevVtqV/2bHH2/S3c030nv5lj1mz9Kr/enrHqv9Yqc377Le25fz/Mf1+T//zeMj2k/5j6f9tC2O8dq3H6laO2XM7pf/SvrCP+qSWn9m911e2vO/4j4y66Bg+Lt8H92SlZQCuU3Q+b33mky+7Vh1H/2W152i152vzefdq4+jfp7fX2hMAAAAAAABwOQ4HwZDd
+  </data>
+ </layer>
+</map>

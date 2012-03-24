@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="100" height="50" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="watertileset3qb2tg0" tilewidth="32" tileheight="32">
+  <image source="../tilesets/32x32-themanaworld/watertileset3qb2tg0.png" width="410" height="331"/>
+ </tileset>
+ <tileset firstgid="121" name="forestground06dv5_0" tilewidth="32" tileheight="32">
+  <image source="../tilesets/32x32-themanaworld/forestground06dv5_0.png" width="629" height="679"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="100" height="50">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA+3DMQ0AAAwEoRvev+bK6AIJq6aqqqqqqqqqqqqqqqqqqqqqqqrq+wOwabUyIE4AAA==
+  </data>
+ </layer>
+ <layer name="Tile Layer 2" width="100" height="50">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA+3LN0tEQRhG4QW1NjfmFcwBXOMurIoJDJhzxiwKRtCf7yluYXnnjp3ngdN8804uJ0lSvAqqpKqAP6F7pVdNNVRLdVRPDdT4R3ul10TN1EKt1Ebt1EF56ozcK70u6qYe6qU+6qcBGqQhGo7YK8wIFWiUxmicJmiSpqhIpYi9wpRpmmZoNrnN0Twt0CItRewVZplWaJXWkts6bdAmbdE27dBuhr3C7NE+HdAhHdExndApndE5XdBlhr3CXdE13dAt3dE9PdBjsnmi54x7hXuhV3qjd/qgz1/vX/QdsZckSZIkSZIkSZIkSZIkSZIkSZIkSfpvfgBQYtOOIE4AAA==
+  </data>
+ </layer>
+ <layer name="Tile Layer 3" width="100" height="50">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA+3BMQEAAADCoPVPbQ0PoAAAAAAAAAAAAAAAAAAAAAAAAAB4MAJTL5cgTgAA
+  </data>
+ </layer>
+</map>

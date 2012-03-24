@@ -1,0 +1,40 @@
+Pyweek #2: done!
+
+It was a whirlwind of coding, although not much of a game came out of it.  As I was developing the game, I kept a journal of ideas to add.  Over the week, I just had a ton on inspiration, but I think that the idea was not really a good fit for a week deadline.
+
+Things I did right:
+Good games come from good ideas, so I spent the first day brainstorming and developing ideas (i also didn't have time to code!)
+Breaking down elements of the game into manageable chunks, setting goals for each (i.e.: next hour get the input working)
+Using an established codebase (lib2d from my last pyweek)
+Research into genetic algorithms helped a lot
+Using Tiled for map creation
+
+Things that I didn't do right:
+Being waaaay too ambitious
+Getting stuck on details
+Not spending time on art, sounds, music
+Literally in the last hours, modifying the map rendering system!
+
+The concept that I had in mind in bullet points:
+* the core mechanic would be that monsters could breed with each other
+* you could capture them as well, selectively breed them for qualities that you liked use them as pets
+* you could release your bred creatures into wild populations get the other monitors to interbreed with it
+* the populations would have home areas, and all have similar traits
+
+Maybe, one group is tough to kill because they run quickly. so you release slow moving creatures in that area, and maybe in a couple generations they will be easier to kill/catch.
+ 
+Since the end of this pyweek, I've worked out a few bugs and maybe in a couple weeks, I'll have more to show for the game.  I really like the concept and I'm going to continue tinkering with it for a while.
+
+A few people have talked to me about Lib2d, which I'm going to package separately and document.
+The most important features of Lib2d that helped the pyweek were:
+Simple ini fie based animations
+Fast multi-layer tilemap renderer
+Solid state-management that [imo] simplifies and consolidates input, displays, and game flow
+"Avatar" class for animated sprites with multiple directions
+I also used DRI0D's tmx loader, but I've since abandoned it since I couldn't really figure out how to use it with the latest version.
+
+
+There is a repackaged version of the game (i'll just call it MH) with the renderer fixed, a new loader, and a draft of the script that I wrote for the story.
+
+ 
+Now, who wants to draw me some sprites?  ^_^

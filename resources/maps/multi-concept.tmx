@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="15" height="15" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="16x16-forest-town" tilewidth="16" tileheight="16">
+  <image source="../tilesets/16x16-forest-town.png" width="272" height="304"/>
+ </tileset>
+ <tileset firstgid="324" name="16x16-indoor" tilewidth="16" tileheight="16">
+  <image source="../tilesets/16x16-indoor.png" width="112" height="192"/>
+ </tileset>
+ <layer name="Tile Layer 1-1" width="15" height="15">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA5NkYGCQHKGYgwSMrteLkXg82PWC/MfNgEoTq5fYcOaB0lx4wpQQ5idSDbl4oNIhAEiPzIeEAwAA
+  </data>
+ </layer>
+ <layer name="Tile Layer 1-2" width="15" height="15">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA2NgGNqAgwSMDtIZcZubA5RLhcpnYlGHTy9MP7l6YQCmtwiIiwnoxeXfZiBuIdFeGJgCxFPxmA+zQxaL3qVAvIwIO+RIc9KwBADobZD4hAMAAA==
+  </data>
+ </layer>
+ <layer name="Tile Layer 2-1" width="15" height="15">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA2NgGHjAQQJGB16MxGNS9OYwoqrBptcdiD2A2JMMe/2A2B+IA5DUgfzHzYBKE+tmYgCyufjsGAX0BQCgfmf6hAMAAA==
+  </data>
+ </layer>
+ <layer name="Tile Layer 2-2" width="15" height="15">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA2NgoA7gIAGjg3RG4uzIxKIOplcGi/pUJPX49GIDOWTqpaZ/iTUfmx2jYOgAAKxIqOCEAwAA
+  </data>
+ </layer>
+ <layer name="Tile Layer 3" width="15" height="15">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA2NgQAAtINYGYh0gNgRiIyA2ZiAO6JCA8ek1pFAvPv3E6MWlH5deXSA2QNJLDADp0QNiDijWh5oxCkYmAADkeN62hAMAAA==
+  </data>
+ </layer>
+</map>
