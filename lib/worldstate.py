@@ -6,30 +6,15 @@ from lib2d.statedriver import driver as sd
 from lib2d.buttons import *
 from lib2d.vec import Vec2d
 from lib2d.quadtree import QuadTree, FrozenRect
+from lib2d.signals import *
 from lib2d import tmxloader, res, gui
 
-from math import sqrt, atan2
-from operator import itemgetter
-import pygame
-import os.path
+import math, pygame
 
 debug = 1
 
-movt_fix = 1/sqrt(2)
+movt_fix = 1/math.sqrt(2)
 
-
-"""
-notalaglia is a strong force and making a game that appeals to that can help
-you find an audience.
-
-my original intenions for mh was to be a stragety game, but i will change
-the design to more of an action rpg and add the stragety elements later.
-
-by the end of this february, i would like to see it in a state where the major
-elements of an action rpg are visible, in order to drum up intrest in the game
-and my underlying library, lib2d.
-
-"""
 
 class ExitTile(FrozenRect):
     def __init__(self, rect, exit):
@@ -62,6 +47,23 @@ class ControllerHandler(object):
 
         pass
 
+
+class SoundManager(object):
+    def __init__(self):
+        self.sounds = {}
+
+    def loadSound(self, name, filename):
+        self.sounds[name] = res.loadSound(filename)
+
+    def play(self, name, volume=1.0):
+        sound = self.sounds[name]
+        sound.set_volume(volume)
+        sound.stop()
+        sound.play()
+
+
+
+SoundMan = SoundManager()
 
 class WorldState(GameState):
     """
@@ -103,11 +105,6 @@ class WorldState(GameState):
 
 
     def activate(self):
-        self.walkSound = None
-        self.walkSoundDelay = 400
-        self.walkSoundPlaying = 0
-        self.sounds = {}
-
         self.msgFont = pygame.font.Font((res.fontPath("volter.ttf")), 9)
         self.border = gui.GraphicBox("dialog2-h.png", hollow=True)
         self.borderFilled = gui.GraphicBox("dialog2.png")
@@ -163,7 +160,7 @@ class WorldState(GameState):
             for gid, tileProp in props:
                 for key, value in tileProp.items():
                     if key[4:].lower() == "sound":
-                        self.sounds[value] = res.loadSound(value)
+                        SoundMan.loadSound(key, value)
 
         # determine if the hero is on an exit warp.
         # if so, then we need to ignore collisions with it until the player
@@ -237,115 +234,21 @@ class WorldState(GameState):
     
  
     def update(self, time):
-
         self.area.update(time)
         self.camera.update(time)
 
-        if self.walkSoundPlaying > 0:
-            self.walkSoundPlaying += time
-            if self.walkSoundPlaying >= self.walkSoundDelay:
-                self.walkSoundPlaying = 0
+        #if self.walkSoundPlaying > 0:
+        #    self.walkSoundPlaying += time
+        #    if self.walkSoundPlaying >= self.walkSoundDelay:
+        #        self.walkSoundPlaying = 0
 
         x, y = self.player_vector
 
         if x==y==0:
             if self.hero.avatar.isPlaying("walk"):
                 self.hero.avatar.play("stand")
-
         else:
-            self.hero.avatar.play("walk")
-
-            if self.area.movePosition(self.hero, (x, y, 0), True):
-
-                # get the type of ground being moved on
-                heroPos = self.area.getPosition(self.hero)
-                pos = self.worldToTile(heroPos)
-                
-                prop = self.tmxdata.getTileProperties(pos)
-
-                if prop == None:
-                    self.walkSound = res.dummySound
-                
-                else:
-                    t = prop.get('walkSound', None)
-                    if t:
-                        self.walkSound = self.sounds[t]
-                        self.walkSound.set_volume(.50)
-                    else:
-                        self.walkSound = res.dummySound
-
-
-                if self.walkSoundPlaying == 0:
-                    self.walkSoundPlaying += time
-                    self.walkSound.play()
-
-
-                """
-                # test for collisions with exits
-                exits = self.exitQT.hit(self.area.getpygame.Rect(self.hero))
-
-                if not exits and self.heroOnExit:
-                    self.heroOnExit = False
-
-                if exits and not self.heroOnExit:
-                    # warp the player
-                    exit = exits.pop()
-                    position, guid = self.area.exits[exit.value]
-                    if not guid == None: 
-                        area = self.area.getRoot().getChildByGUID(guid)
-                        position, otherExit = area.exits[exit.value]
-                        x, y, l = position
-                        l = 4
-
-                        ox, oy, ol = self.area.getOldPosition(self.hero)
-
-                        if x-ox > 0:
-                            dx = self.tmxdata.tilewidth / 2
-                        elif x-ox < 0:
-                            dx = -self.tmxdata.tilewidth / 2
-                        else:
-                            dx = 0    
-
-                        if y-oy > 0:
-                            dy = self.tmxdata.tileheight / 2
-                        elif y-oy < 0:
-                            dy = -self.tmxdata.tileheight / 2
-                        else:
-                            dy = 0
-                        
-                        face = self.area.getOrientation(self.hero)
-
-                        area.add(self.hero)
-                        print x+dx, y+dy
-                        area.setPosition(self.hero, (x, y+dy, l))
-                        area.setOrientation(self.hero, face)
-                        sd.push(WorldState(area))
-                        sd.done()
-                """
-
-
-    def tileToWorld(self, (x, y, l)):
-        xx = int(y) * self.tmxdata.tilewidth
-        yy = int(x) * self.tmxdata.tileheight
-        return xx, yy, l
-
-
-    def worldToTile(self, (x, y, l)):
-        # return the tile position of an object
-        xx = int(y) / self.tmxdata.tilewidth
-        yy = int(x) / self.tmxdata.tileheight
-        return xx, yy, 0
-
-
-    def warpPlayer(self, area, position):
-        """
-        move player to another map
-        """
-
-        area.add(self.hero)
-        area.setPosition(self.hero, position)
-        sd.push(WorldState(area))
-        sd.done()
+            self.area.movePosition(self.hero, (x, y, 0), True, caller=self)
 
 
     def handle_commandlist(self, cmdlist):
@@ -396,4 +299,98 @@ class WorldState(GameState):
 
             # don't rotate the player if he's grabbing something
             if not self.hero.arms == GRAB:
-                self.area.setOrientation(self.hero, atan2(x, y))
+                self.area.setOrientation(self.hero, math.atan2(x, y))
+
+
+
+def tileToWorld(state, (x, y, l)):
+    xx = int(y) * state.tmxdata.tilewidth
+    yy = int(x) * state.tmxdata.tileheight
+    return xx, yy, l
+
+
+def worldToTile(state, (x, y, l)):
+    # return the tile position of an object
+    xx = int(y) / state.tmxdata.tilewidth
+    yy = int(x) / state.tmxdata.tileheight
+    return xx, yy, 0
+
+
+@receiver(emitSound)
+def playSound(sender, **kwargs):
+    pass
+
+
+@receiver(bodyRelMove)
+def bodyMove(sender, **kwargs):
+    area = sender
+    body = kwargs['body']
+    position = kwargs['position']
+    state = kwargs['caller']
+
+    if body == state.hero:
+        body.avatar.play("walk")
+        tilePos = worldToTile(state, position)
+        prop = state.tmxdata.getTileProperties(tilePos)
+
+        """
+        if prop == None:
+            state.walkSound = res.dummySound
+        
+        else:
+            t = prop.get('walkSound', None)
+            if t:
+                state.walkSound = state.sounds[t]
+                state.walkSound.set_volume(.50)
+            else:
+                state.walkSound = res.dummySound
+
+
+        if state.walkSoundPlaying == 0:
+            state.walkSoundPlaying += time
+            state.walkSound.play()
+
+        """
+
+        """
+        # test for collisions with exits
+        exits = self.exitQT.hit(area.getpygame.Rect(body))
+
+        if not exits and bodyOnExit:
+            bodyOnExit = False
+
+        if exits and not bodyOnExit:
+            # warp the player
+            exit = exits.pop()
+            position, guid = area.exits[exit.value]
+            if not guid == None: 
+                area = area.getRoot().getChildByGUID(guid)
+                position, otherExit = area.exits[exit.value]
+                x, y, l = position
+                l = 4
+
+                ox, oy, ol = area.getOldPosition(body)
+
+                if x-ox > 0:
+                    dx = self.tmxdata.tilewidth / 2
+                elif x-ox < 0:
+                    dx = -self.tmxdata.tilewidth / 2
+                else:
+                    dx = 0    
+
+                if y-oy > 0:
+                    dy = self.tmxdata.tileheight / 2
+                elif y-oy < 0:
+                    dy = -self.tmxdata.tileheight / 2
+                else:
+                    dy = 0
+                
+                face = area.getOrientation(body)
+
+                area.add(body)
+                print x+dx, y+dy
+                area.setPosition(body, (x, y+dy, l))
+                area.setOrientation(body, face)
+                sd.push(WorldState(area))
+                sd.done()
+        """

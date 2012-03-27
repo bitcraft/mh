@@ -4,7 +4,7 @@ Game world for "mh"
 this will create a pickle that can be read by the library
 """
 
-from lib2d.env import Environment, Area
+from lib2d.area import AbstractArea, Area, createAreaFromTMX
 from lib2d.avatar import Avatar, Animation, StaticAnimation
 from lib2d.objects import AvatarObject
 from lib2d import res, tmxloader
@@ -15,7 +15,7 @@ from collections import defaultdict
 
 
 # build the initial environment
-uni = Environment()
+uni = AbstractArea()
 uni.name = 'MH'
 uni.setGUID(0)
 
@@ -169,16 +169,12 @@ uni.add(item)
 
 # build the areas to explore
 
-village = Area()
-uni.add(village)
-village.setMap("village.tmx")
+village = createAreaFromTMX(uni, "village.tmx")
 village.setName("Village")
 village.setGUID(1001)
 
 
-home = Area()
-uni.add(home)
-home.setMap("building0.tmx")
+home = createAreaFromTMX(uni, "building0.tmx")
 home.setName("Building0")
 home.setGUID(1002)
 
