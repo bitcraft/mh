@@ -63,6 +63,7 @@ class WorldState(GameState):
         self.borderFilled = gui.GraphicBox("dialog2.png")
         self.player_vector = Vec2d(0,0)
 
+        # load the pygame and data assests for the area
         self.area.load()
 
         # get the root and the hero from it
@@ -70,7 +71,7 @@ class WorldState(GameState):
         self.hero = root.getChildByGUID(1)
         self.hero.move_speed = 1
 
-        # add the hero to this map if it isn't ready there
+        # add the hero to this map if it isn't already there
         if not self.area.hasChild(self.hero):
             self.area.add(self.hero)
 
@@ -78,20 +79,19 @@ class WorldState(GameState):
         sw, sh = sd.get_size()
         mw = sw * .75
         mh = sh * .75
-        self.camera = AreaCamera(self.area,((0,0), (mw, mh)),
+        self.camera = AreaCamera(self.area,(4,4, mw, mh),
                                  tmxdata=self.area.tmxdata)
 
+        # define the borders
         self.mapBorder = pygame.Rect((0,0,mw+6,mh+6))
         self.msgBorder = pygame.Rect((0,mh,sw,sh-mh))
         self.hudBorder = pygame.Rect((mw,0,sw-mw,mh+6))
 
-
         # play music if any has been set in tiled
-        try:
-            res.playMusic(self.area.tmxdata.music)
-        except AttributeError:
-            res.fadeoutMusic()
-
+        #try:
+        #    res.playMusic(self.area.tmxdata.music)
+        #except AttributeError:
+        #    res.fadeoutMusic()
  
         # load tile sounds
         for i, layer in enumerate(self.area.tmxdata.tilelayers):
@@ -135,7 +135,7 @@ class WorldState(GameState):
             self.camera.center(self.area.getPosition(self.hero))
 
         # the main map
-        self.camera.draw(surface, origin=(4, 4))
+        self.camera.draw(surface)
 
         # borders
         self.borderFilled.draw(surface, self.msgBorder)
@@ -145,29 +145,33 @@ class WorldState(GameState):
         rect = self.msgBorder.inflate(-16,-12)
         gui.drawText(surface, log, (0,0,0), rect, self.msgFont)
 
-
         return
+
+        originalClip = surface.get_clip()
+        surface.set_clip(self.camera.rect)
 
         # debug stuff...may/may not work
         for obj, pos in self.area.getPositions():
-            y,x,w,h = self.area.topygame.Rect(self.area.getBBox(obj))
-            surface.fill((128,0,64), (self.camera.toScreen((x,y)), (w,h)))
-
+            x,y,w,h = self.area.toRect(self.area.getBBox(obj))
+            ox, oy = self.camera.rect.topleft
+            surface.fill((128,0,64), (self.camera.toScreen((x+ox,y+oy)), (w,h)))
 
         for gid, param in self.area.exits.items():
             x, y, l = param[0]
             size = (16, 16)
+            ox, oy = self.camera.rect.topleft
             pygame.draw.rect(surface,(128,128,255),
-                            (self.camera.toScreen((x,y)),size))
+                            (self.camera.toScreen((x+ox,y+oy)),size))
 
-        for rect in self.area.geopygame.Rect:
-            y, x, sx, sy = rect
+        for rect in self.area.geoRect:
+            x, y, sx, sy = rect
+            ox, oy = self.camera.rect.topleft
             pygame.draw.rect(surface,
                      (255,0,128, 20),
-                     (self.camera.toScreen((x, y)),
-                     (sx, sy)))
+                     (self.camera.toScreen((x+ox, y+oy)), (sy, sx)))
     
- 
+        surface.set_clip(originalClip) 
+
     def update(self, time):
         self.area.update(time)
         self.camera.update(time)
@@ -231,36 +235,39 @@ class WorldState(GameState):
             if not self.hero.arms == GRAB:
                 self.area.setOrientation(self.hero, math.atan2(x, y))
 
+
 """
 Below are functions to handle signals sent from the area
 """
-
 
 @receiver(emitSound)
 def playSound(sender, **kwargs):
     SoundMan.play(kwargs['filename'])
 
 
-@receiver(bodyRelMove)
+@receiver(bodyAbsMove)
 def bodyMove(sender, **kwargs):
     area = sender
     body = kwargs['body']
     position = kwargs['position']
     state = kwargs['caller']
 
+    if state == None:
+        return
+
     if body == state.hero:
         body.avatar.play("walk")
-        state.camera.center(state.area.getPosition(body))
+        state.camera.center(position)
 
 
 @receiver(bodyWarp)
 def bodyWarp(sender, **kwargs):
     area = sender
     body = kwargs['body']
-    where = kwargs['where']
+    destination = kwargs['destination']
     state = kwargs['caller']
 
     if body == state.hero:
-        pass
-
+        sd.push(WorldState(destination))
+        sd.done()
 

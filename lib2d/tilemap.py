@@ -36,13 +36,14 @@ class BufferedTilemapRenderer(object):
     will blit any tiles needed to the offscreen buffer.
     """
 
-    def __init__(self, tmx, size, **kwargs):
+    def __init__(self, tmx, rect, **kwargs):
         import tmxloader
 
         self.default_image = generateDefaultImage((tmx.tilewidth,
                                                    tmx.tileheight))
         self.tmx = tmx
-        self.setSize(size)
+        self.setSize(rect.size)
+        self.rect = rect
 
 
     def setSize(self, size):
@@ -278,7 +279,7 @@ class BufferedTilemapRenderer(object):
                     bufblit(image, (x * tw - ltw, y * th - tth))
 
 
-    def draw(self, surface, surfaces=[], origin=(0,0)):
+    def draw(self, surface, surfaces=[]):
         """
         draw the map onto a surface.
     
@@ -301,14 +302,14 @@ class BufferedTilemapRenderer(object):
         surblit = surface.blit
         left, top = self.view.topleft
         ox, oy = self.xoffset, self.yoffset
-        ox -= origin[0]
-        oy -= origin[1]
+        ox -= self.rect.left
+        oy -= self.rect.top
         getTile = self.getTileImage
 
-        # set clipping
+        # set clipping.  need to do this, otherwise the map will draw outside
+        # its defined area.
         origClip = surface.get_clip()
-        drawArea = (origin, self.size)
-        surface.set_clip(drawArea)
+        surface.set_clip(self.rect)
 
         surblit(self.buffer, (-ox, -oy))
 
@@ -344,7 +345,7 @@ class BufferedTilemapRenderer(object):
         # restore clipping area
         surface.set_clip(origClip)
 
-        return drawArea
+        return self.rect
 
 
     def flushQueue(self):
