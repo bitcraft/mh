@@ -57,6 +57,7 @@ class WorldState(GameState):
         self.blank = True
 
 
+
     def activate(self):
         self.msgFont = pygame.font.Font((res.fontPath("volter.ttf")), 9)
         self.border = gui.GraphicBox("dialog2-h.png", hollow=True)
@@ -266,6 +267,9 @@ def bodyWarp(sender, **kwargs):
     body = kwargs['body']
     destination = kwargs['destination']
     state = kwargs['caller']
+
+    if state == None:
+        return
 
     if body == state.hero:
         sd.push(WorldState(destination))

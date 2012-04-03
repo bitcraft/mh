@@ -6,31 +6,3 @@ mogrify -shave 14x14
 # make the tilemap, thing...
 montage -geometry 64x64 -tile 25x32 *.png iconset.png
 
-
-
-
-questing:
-
-a quest:
-    has a goal
-    has prerequsits to finish (quests too?)
-    has a defined consequence when completed
-    has a defined consequence while being completed
-
-
-any game item:
-    has a defined state when certain quest conditions are met
-    can belong to "state groups" to simplify conditions that affect many objects
-
-
-karmatic and reputation system
-    completed quests will raise and lower reputation for factions
-    karma can be raised and lowered through actions
-    loyality or opposition will affect dialog choices
-
-
-dialog choices
-    dialog choices will be available and subject to different factors
-
-
-

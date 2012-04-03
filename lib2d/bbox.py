@@ -40,6 +40,8 @@ class BBox(object):
                 self._w, self._h, self._d = arg[1]
             elif len(arg) == 6:
                 self._x, self._y, self._z, self._w, self._h, self._d = arg
+            else:
+                raise ValueError, arg
         elif hasattr(arg, 'bbox'):
             self._x, self._y, self._z, self._w, self._h, self._d = arg.bbox
         else:

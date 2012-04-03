@@ -112,7 +112,7 @@ class AreaCamera(object):
         onScreen = [ (a.image, r, 2) for a, r in avatars ]
         onScreen.sort(key=screenSorter)
 
-        self.maprender.draw(surface, onScreen)
+        return self.maprender.draw(surface, onScreen)
 
 
     def toScreen(self, pos):
