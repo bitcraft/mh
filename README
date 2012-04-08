@@ -1,5 +1,7 @@
 this is a ongoing project for some sort of adventure game.
 
+a world of warning, this repository is generally not stable, and may not run.  there is a stable version under the downloads section.
+
 python/pygame adventure game library
     native support for tiled maps
     supports keyboard and joystick movement
@@ -28,11 +30,13 @@ tilesets.
 
 RUNNING:
 
-after you download mh, you will need to initialize the world pickle.  simply
-run 'buildworld.sh'.  this will create two files for the pickle, then you can
-run 'run.py' to get going.
+to play, you will first need to initialize the world pickle.  simply
+run 'buildworld.sh'.  this will create two files for the pickle.
 
-run.py contains a few game modes that you can try.  simply uncomment the mode
-to try in the section near the bottom of the file.
+when the pickle is created, run 'run.py' to run the demo.
+
+if you encounter an error and the game will no longer run, rebuild the pickle by running 'buildworld.sh'.
+
+
 
 HAVE FUN!
