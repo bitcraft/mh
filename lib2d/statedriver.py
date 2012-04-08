@@ -1,6 +1,8 @@
 import gfx
-import pygame
+from signals import *
 from playerinput import KeyboardPlayerInput
+
+import pygame
 from collections import deque
 from itertools import cycle, islice
 from pygame.locals import *
@@ -178,6 +180,15 @@ class StateDriver(object):
                 nexts = cycle(islice(nexts, pending))
 
 
+    def tick(self, time):
+        """
+        send a tick to the game world
+        send the amount of time to simulate
+        """
+
+        timeSignal.send(sender=self, time=time)
+
+
     def run(self):
         """
         run the state driver.
@@ -251,19 +262,19 @@ class StateDriver(object):
             if currentState:
                 time = time / 4.0
 
-                originalState.update(time)
+                self.tick(time)
                 currentState = current_state()
                 if not currentState == originalState: continue
 
-                currentState.update(time)
+                self.tick(time)
                 currentState = current_state()
                 if not currentState == originalState: continue
 
-                currentState.update(time)
+                self.tick(time)
                 currentState = current_state()
                 if not currentState == originalState: continue
 
-                currentState.update(time)
+                self.tick(time)
                 currentState = current_state()
                 if not currentState == originalState: continue
 

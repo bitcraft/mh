@@ -173,7 +173,7 @@ class WorldState(GameState):
     
         surface.set_clip(originalClip) 
 
-    def update(self, time):
+    def _update(self, time):
         self.area.update(time)
         self.camera.update(time)
 
@@ -184,6 +184,13 @@ class WorldState(GameState):
                 self.hero.avatar.play("stand")
         else:
             self.area.movePosition(self.hero, (x, y, 0), True, caller=self)
+
+
+    @receiver(timeSignal)
+    def update(self, sender, **kwargs):
+        time = kwargs['time']
+        print kwargs
+        sender.update(time)
 
 
     def handle_commandlist(self, cmdlist):
@@ -274,4 +281,5 @@ def bodyWarp(sender, **kwargs):
     if body == state.hero:
         sd.push(WorldState(destination))
         sd.done()
+
 

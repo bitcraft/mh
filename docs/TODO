@@ -69,12 +69,43 @@ any game item:
 karmatic and reputation system
     completed quests will raise and lower reputation for factions
     karma can be raised and lowered through actions
-    loyality or opposition will affect dialog choices
+    loyalty or opposition will affect dialog choices
+
+AI:
+	in order to simulate factions, create ai agents that *are the faction*
+	the ai will receive it's inputs through connected charactors
+	charactors can have multiple ai agents
+	charactors' behavior is controlled through arbetering process
+
+speech:
+	a graphical interface for setting speech options
+
+
+arbetoring process:
+	should has a set of inputs
+	each inputs has a float value
+	each value has a bias to adjust importance
 
 
 dialog choices
     dialog choices will be available and subject to different factors
 
+
+MVC:
+	the library is at a middle grounds in terms of design
+	development is mostly ad-hoc with no real design goals
+	library is a personal exercise to play with programming, python, and games
+	time to get serious
+	MVC pattern seems to make sense with pygame
+	MVC pattern makes easy to extend games
+	create a strict ideal to follow with MVC guidelines
+	warp the pygame 'feel' to a more serious development style
+	create games that are no reliant on any special display, input, output
+	requires wrapping the pygame event model
+	make objects containers that exist only to receive and process events
+	this model will make design later easier
+	could become multi-process or threaded easily
+	seems professional
 
 
 parties:
@@ -84,3 +115,24 @@ parties:
 
 zombie survival isn't just surviving zombie attacks, it is requires diplomacy
 strategy sets and commands to companions could fail depending on relationship to others
+
+real-time nature and strategy will have to be a mix of options
+
+should be enough npcs and variety that poor decisions will not be a huge consequence to the player.
+
+may require another rewrite with the following kept in mind:
+	all objects must be able to be loaded and unladed at any moment
+	any change to state should emit a signal, even if nobody wants to listen
+	think new, don't follow old pygame standards
+	there is no loop, only events
+	pygame events will be wrapped by django-esque signals
+
+model:
+	any object that has state
+
+view:
+	any object that reads state of another object (through a controller)
+
+controller:
+	any object that communicates between a model and view
+	does not have state
