@@ -39,24 +39,18 @@ features from movies/tv that should be in game:
 	rumors
 	party forming
 
-
 mega maps:
 divide large maps into regions
 regions can be loaded from disk, complete with geometry
 entities in the game world can request regions be loaded into memory
-renderer should be able to render many regions simutaneously
+renderer should be able to render many regions simultaneously
 the tilesets 'images' can be loaded on the fly without affecting metadata
-
-
-
-
-
 
 questing:
 
 a quest:
     has a goal
-    has prerequsits to finish (quests too?)
+    has prerequisites to finish (quests too?)
     has a defined consequence when completed
     has a defined consequence while being completed
 
@@ -118,7 +112,7 @@ strategy sets and commands to companions could fail depending on relationship to
 
 real-time nature and strategy will have to be a mix of options
 
-should be enough npcs and variety that poor decisions will not be a huge consequence to the player.
+should be enough npcs and variety so that poor decisions will not have huge consequences for the player.
 
 may require another rewrite with the following kept in mind:
 	all objects must be able to be loaded and unladed at any moment
@@ -136,3 +130,12 @@ view:
 controller:
 	any object that communicates between a model and view
 	does not have state
+
+
+it is apparent now that my scope has expanded rapidly and the current base needs another rewrite.  the rewrite i did last week was good and set the game forward so much, but in order to support more advanced features in a reliable way, i will need another rewrite, this time with a cleaner separation between pygame and the game core.
+
+on the topic of the game core, in order to have a reliable game world with multiple players and advanced ai agents (possibly run in a separate process), a stable framework will have to be devised.
+
+twisted offers a real possibility to create a clean client/server base that will be able to be extended by other people.
+
+the use of signals may be lost now, i will see where that will go once i get the server separated from the client.

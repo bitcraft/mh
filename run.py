@@ -11,14 +11,6 @@ import pygame
 
 profile = 0
 
-#gfx.set_screen((320, 240))
-#gfx.set_screen((320, 240), 2, "scale2x")
-#gfx.set_screen((640, 480), 2, "scale")
-#gfx.set_screen((640, 480), 3, "scale")
-#gfx.set_screen((640, 480))
-#gfx.set_screen((800, 600))
-#gfx.set_screen((1024, 768))
-
 
 class CutsceneTest(Game):
     def start(self):
@@ -77,7 +69,7 @@ if __name__ == "__main__":
         p = pstats.Stats("results.prof")
         p.strip_dirs()
         #p.sort_stats('time').print_stats(20, "^((?!pygame).)*$")
-        #p.sort_stats('time').print_stats(20)
+        p.sort_stats('time').print_stats(20)
 
     else:
         WorldTest().start()

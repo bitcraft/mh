@@ -11,7 +11,6 @@ from lib2d import tmxloader, res, gui
 import math, pygame
 
 debug = 1
-
 movt_fix = 1/math.sqrt(2)
 
 
@@ -31,8 +30,73 @@ class SoundManager(object):
 
 
 SoundMan = SoundManager()
+    
+
+class WorldStateController(object):
+    """
+    Controller to manipulate the world
+    """
+
+    def __init__(self, view, model):
+        self.view = view
+        self.model = model
 
 
+    def process(self, cmdlist):
+        """
+        supply a list of game events
+        """
+
+        x = 0
+        y = 0
+
+        for cls, cmd, arg in cmdlist:
+            if arg == BUTTONUP:
+                if cmd == P1_UP:
+                    self.player_vector.x = 0
+                elif cmd == P1_DOWN:
+                    self.player_vector.x = 0
+                elif cmd == P1_LEFT:
+                    self.player_vector.y = 0
+                elif cmd == P1_RIGHT:
+                    self.player_vector.y = 0
+                elif cmd == P1_ACTION2:
+                    self.hero.ungrab()
+                elif cmd == P1_ACTION3:
+                    self.hero.unlift()
+
+            # these actions will repeat as button is held down
+            elif arg == BUTTONDOWN or arg == BUTTONHELD:
+                if   cmd == P1_UP:      x = -1
+                elif cmd == P1_DOWN:    x = 1
+                elif cmd == P1_LEFT:    y = -1
+                elif cmd == P1_RIGHT:   y = 1
+
+            # these actions will not repeat if button is held
+            if arg == BUTTONDOWN:
+                if cmd == P1_ACTION1:
+                    self.hero.attack()
+
+                elif cmd == P1_ACTION2:
+                    self.hero.grab()
+
+                elif cmd == P1_ACTION3:
+                    self.hero.lift()
+
+
+        if (not x == 0) and (not y == 0):
+            x *= movt_fix
+            y *= movt_fix
+
+        if (not x == 0) or (not y == 0):
+            self.player_vector.y = y * self.hero.move_speed
+            self.player_vector.x = x * self.hero.move_speed
+
+            # don't rotate the player if he's grabbing something
+            if not self.hero.arms == GRAB:
+                self.area.setOrientation(self.hero, math.atan2(x, y))
+
+        
 
 class WorldState(GameState):
     """
@@ -47,18 +111,22 @@ class WorldState(GameState):
         equipted items always have a dedicated button
         should have hot-swap button and drop button
 
+    This is a VIEW in mvc.
+
     """
 
     def __init__(self, area, startPosition=None):
         GameState.__init__(self)
         self.area = area
-        self.background = (203, 204, 177)
-        self.foreground = (0, 0, 0)
-        self.blank = True
-
 
 
     def activate(self):
+        self.blank = True
+        self.background = (203, 204, 177)
+        self.foreground = (0, 0, 0)
+
+        self.controller = WorldStateController(self, self.area)
+
         self.msgFont = pygame.font.Font((res.fontPath("volter.ttf")), 9)
         self.border = gui.GraphicBox("dialog2-h.png", hollow=True)
         self.borderFilled = gui.GraphicBox("dialog2.png")
@@ -109,7 +177,7 @@ class WorldState(GameState):
         pass
 
        
-    def drawSidebar(self, surface, rect):
+    def _drawSidebar(self, surface, rect):
         # draw the static portions of the sidebar
         sx, sy, sw, sh = rect
 
@@ -132,7 +200,7 @@ class WorldState(GameState):
         if self.blank:
             self.blank = False
             surface.fill(self.background)
-            self.drawSidebar(surface, self.hudBorder)
+            self._drawSidebar(surface, self.hudBorder)
             self.camera.center(self.area.getPosition(self.hero))
 
         # the main map
@@ -171,7 +239,8 @@ class WorldState(GameState):
                      (255,0,128, 20),
                      (self.camera.toScreen((x+ox, y+oy)), (sy, sx)))
     
-        surface.set_clip(originalClip) 
+        surface.set_clip(originalClip)
+
 
     def _update(self, time):
         self.area.update(time)
@@ -194,54 +263,8 @@ class WorldState(GameState):
 
 
     def handle_commandlist(self, cmdlist):
-        x = 0
-        y = 0
+        self.controller.process(cmdlist)
 
-        for cls, cmd, arg in cmdlist:
-            if arg == BUTTONUP:
-                if cmd == P1_UP:
-                    self.player_vector.x = 0
-                elif cmd == P1_DOWN:
-                    self.player_vector.x = 0
-                elif cmd == P1_LEFT:
-                    self.player_vector.y = 0
-                elif cmd == P1_RIGHT:
-                    self.player_vector.y = 0
-                elif cmd == P1_ACTION2:
-                    self.hero.ungrab()
-                elif cmd == P1_ACTION3:
-                    self.hero.unlift()
-
-            # these actions will repeat as button is held down
-            elif arg == BUTTONDOWN or arg == BUTTONHELD:
-                if   cmd == P1_UP:      x = -1
-                elif cmd == P1_DOWN:    x = 1
-                elif cmd == P1_LEFT:    y = -1
-                elif cmd == P1_RIGHT:   y = 1
-
-            # these actions will not repeat if button is held
-            if arg == BUTTONDOWN:
-                if cmd == P1_ACTION1:
-                    self.hero.attack()
-
-                elif cmd == P1_ACTION2:
-                    self.hero.grab()
-
-                elif cmd == P1_ACTION3:
-                    self.hero.lift()
-
-
-        if (not x == 0) and (not y == 0):
-            x *= movt_fix
-            y *= movt_fix
-
-        if (not x == 0) or (not y == 0):
-            self.player_vector.y = y * self.hero.move_speed
-            self.player_vector.x = x * self.hero.move_speed
-
-            # don't rotate the player if he's grabbing something
-            if not self.hero.arms == GRAB:
-                self.area.setOrientation(self.hero, math.atan2(x, y))
 
 
 """

@@ -7,7 +7,7 @@ import pygame
 """
 TODO: make some sort of manager class for animations
       would make resource sharing less expensive
-      in many cases, a cache doesn't make sence, but here...it does
+      in many cases, a cache doesn't make sense, but here...it does
 """     
 
 def padimage(image):    

@@ -1,6 +1,5 @@
 """
-
-MASSIVE module meant for loading data data:
+module meant for loading data:
     objects
     images
     sounds
