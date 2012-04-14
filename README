@@ -1,4 +1,4 @@
-this is a ongoing project for some sort of adventure game.
+this is a ongoing project for some sort of multiplayer adventure game.
 
 a world of warning, this repository is generally not stable, and may not run.  there is a stable version under the downloads section.
 
@@ -6,7 +6,7 @@ python/pygame adventure game library
     native support for tiled maps
     supports keyboard and joystick movement
     save game and persistence for all objects
-    scrolling map
+    scrolling map for large areas
     animated sprites
     network support coming soon with twisted integration
 
