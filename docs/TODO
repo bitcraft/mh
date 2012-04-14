@@ -1,84 +1,74 @@
 lib2d planned features:
 
-8-bit surfaces on the scrolling buffers makes a very fast renderer
+Renderer:
+    8-bit surfaces on the scrolling buffers makes a very fast renderer
+    dirty rect animation is now possible, but not implemented in gfx.py
 
-allow multiple concurrent gamestates
-integrate dialogs from mh and allow customization(?)
-the sheetloader should be updated to only support the grid format
-the grid utilities should be updated
+Networking:
+    twisted integration on the server.
+    the client should be lightweight.  will use asyncore + construct.
 
-game objects need a new system that has special handling of pickles:
-    pygame objects cannot be pickled, but the actors can
-    pygame objects need a way to load resources off disk from a pickle
+Core:
+    allow multiple concurrent gamestates
+    integrate dialogs from mh and allow customization
 
-
-why pickles?
-    cause it would not make sense to keep all objects in memory.
-    makes a system of persistence that is built in python
-
-
-When loading only the tree should be available at first.
-
-zombie survival simulation
-random game each time
-hard rules…sandbox?
-score given.  play time should be about an hour?
-fallout style missions:
-	random encounters
-	immersive, rather than focused on action
-use of goap ai to simulate npcs
-how about…turn based, rougelike?
-features from movies/tv that should be in game:
-	barricading using objects in room (push chair to wall?)
-	stockpiling items
-	morale bonus for hot shower
-	head shots?
-	health items: anti-biotics, pain pills, steroids, etc
-	ability to use objects as weapons
-	safe houses
-	rumors
-	party forming
+Game:
+    zombie survival simulation
+    random game each time
+    hard rules…sandbox?
+    score given.  play time should be about an hour?
+    fallout style missions:
+        random encounters
+        immersive, rather than focused on action
+    use of goap ai to simulate npcs
+    how about...turn based, rougelike?
+    features from movies/tv that should be immersiven game:
+        barricading using objects in room (push chair to wall?)
+        stockpiling items
+        morale bonus for hot shower
+        head shots?
+        health items: anti-biotics, pain pills, steroids, etc
+        ability to use objects as weapons
+        safe houses
+        rumors
+        party forming
 
 mega maps:
-divide large maps into regions
-regions can be loaded from disk, complete with geometry
-entities in the game world can request regions be loaded into memory
-renderer should be able to render many regions simultaneously
-the tilesets 'images' can be loaded on the fly without affecting metadata
+    divide large maps into regions
+    regions can be loaded from disk, complete with geometry
+    entities in the game world can request regions be loaded into memory
+    renderer should be able to render many regions simultaneously
+    the tilesets 'images' can be loaded on the fly without affecting metadata
 
-questing:
-
-a quest:
+A quest...
     has a goal
     has prerequisites to finish (quests too?)
     has a defined consequence when completed
     has a defined consequence while being completed
 
-
-any game item:
+Game Items...
     has a defined state when certain quest conditions are met
     can belong to "state groups" to simplify conditions that affect many objects
 
-
-karmatic and reputation system
+karmatic and reputation system:
     completed quests will raise and lower reputation for factions
     karma can be raised and lowered through actions
     loyalty or opposition will affect dialog choices
 
 AI:
-	in order to simulate factions, create ai agents that *are the faction*
-	the ai will receive it's inputs through connected charactors
-	charactors can have multiple ai agents
-	charactors' behavior is controlled through arbetering process
+    in order to simulate factions, create ai agents that *are the faction*
+    the ai will receive it's inputs through connected charactors
+    charactors can have multiple ai agents
+    charactors' behavior is controlled through arbetering process
 
 speech:
-	a graphical interface for setting speech options
+    a graphical interface for setting speech options
 
 
 arbetoring process:
-	should has a set of inputs
-	each inputs has a float value
-	each value has a bias to adjust importance
+    should has a set of inputs
+    each inputs has a float value
+    each value has a bias to adjust importance
 
 
 dialog choices
@@ -86,26 +76,26 @@ dialog choices
 
 
 MVC:
-	the library is at a middle grounds in terms of design
-	development is mostly ad-hoc with no real design goals
-	library is a personal exercise to play with programming, python, and games
-	time to get serious
-	MVC pattern seems to make sense with pygame
-	MVC pattern makes easy to extend games
-	create a strict ideal to follow with MVC guidelines
-	warp the pygame 'feel' to a more serious development style
-	create games that are no reliant on any special display, input, output
-	requires wrapping the pygame event model
-	make objects containers that exist only to receive and process events
-	this model will make design later easier
-	could become multi-process or threaded easily
-	seems professional
+    the library is at a middle grounds in terms of design
+    development is mostly ad-hoc with no real design goals
+    library is a personal exercise to play with programming, python, and games
+    time to get serious
+    MVC pattern seems to make sense with pygame
+    MVC pattern makes easy to extend games
+    create a strict ideal to follow with MVC guidelines
+    change the pygame 'feel' to a more serious development style
+    create games that are no reliant on any special display, input, output
+    requires wrapping the pygame event model
+    make objects containers that exist only to receive and process events
+    this model will make design later easier
+    could become multi-process or threaded easily
+    seems professional
 
 
 parties:
-	want a fresh approach to a real-time action rpg
-	similar to fallout 3, secret of mana, ai companions
-	should be able to direct companions with strategy sets
+    want a fresh approach to a real-time action rpg
+    similar to fallout 3, secret of mana, ai companions
+    should be able to direct companions with strategy sets
 
 zombie survival isn't just surviving zombie attacks, it is requires diplomacy
 strategy sets and commands to companions could fail depending on relationship to others
@@ -115,21 +105,21 @@ real-time nature and strategy will have to be a mix of options
 should be enough npcs and variety so that poor decisions will not have huge consequences for the player.
 
 may require another rewrite with the following kept in mind:
-	all objects must be able to be loaded and unladed at any moment
-	any change to state should emit a signal, even if nobody wants to listen
-	think new, don't follow old pygame standards
-	there is no loop, only events
-	pygame events will be wrapped by django-esque signals
+    all objects must be able to be loaded and unladed at any moment
+    any change to state should emit a signal, even if nobody wants to listen
+    think new, don't follow old pygame standards
+    there is no loop, only events
+    pygame events will be wrapped by django-esque signals
 
 model:
-	any object that has state
+    any object that has state
 
 view:
-	any object that reads state of another object (through a controller)
+    any object that reads state of another object (through a controller)
 
 controller:
-	any object that communicates between a model and view
-	does not have state
+    any object that communicates between a model and view
+    does not have state
 
 
 it is apparent now that my scope has expanded rapidly and the current base needs another rewrite.  the rewrite i did last week was good and set the game forward so much, but in order to support more advanced features in a reliable way, i will need another rewrite, this time with a cleaner separation between pygame and the game core.
@@ -139,3 +129,6 @@ on the topic of the game core, in order to have a reliable game world with multi
 twisted offers a real possibility to create a clean client/server base that will be able to be extended by other people.
 
 the use of signals may be lost now, i will see where that will go once i get the server separated from the client.
+
+achievements should be built into the game.  this means that all state changes should be run through a achievement checker and then applied to the player's 'account'.
+if all state changes, and actions tracked, then that will cover 90% of achievements.  

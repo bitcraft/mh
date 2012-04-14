@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 
-from lib2d import res
-import pygame
-
 from lib2d.statedriver import driver as sd
-from lib2d import gfx, config
+from lib2d import gfx
+import pygame
 
 
 class Game(object):

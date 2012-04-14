@@ -7,7 +7,6 @@ import pygame, os.path, pprint
 """
 a few utilities for making retro looking games by scaling the screen
 and providing a few functions for handling screen changes
-
 """
 
 DEBUG = False

@@ -15,7 +15,6 @@ class GameState(object):
         that is the point when assets will be required.
         """        
 
-
         self.activated = False
 
 

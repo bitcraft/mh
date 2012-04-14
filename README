@@ -8,6 +8,7 @@ python/pygame adventure game library
     save game and persistence for all objects
     scrolling map
     animated sprites
+    network support coming soon with twisted integration
 
 
 started during pyweek sept '11, has slowly morphed into something else.

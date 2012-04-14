@@ -438,6 +438,8 @@ class ShadowMask(object):
     """
     Renders shadows onto a map by blitting black tiles with dittered tiles, or
     optionally black tiles with an alpha value to simulate shadows.
+
+    Not finished!
     """
 
     def __init__(self, grad):

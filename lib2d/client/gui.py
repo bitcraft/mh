@@ -1,8 +1,8 @@
-import res
-from pygame import Surface, Rect, RLEACCEL
+import lib2d.res
 import pygame
 from math import ceil
 from itertools import product
+from pygame import Surface, Rect, RLEACCEL
 
 
 

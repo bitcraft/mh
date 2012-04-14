@@ -15,6 +15,14 @@ class Node(object):
         self.h = 0
         self.is_closed = 0
 
+    def __eq__(self, other):
+        try:
+            return (self.x == other.x) and (self.y == other.y)
+        except AttributeError:
+            return False
+
+    def __repr__(self):
+        return "<Node: x={} y={}>".format(self.x, self.y)
 
 def getSurrounding(node):
     return ((node.x-1, node.y-1), (node.x, node.y-1), (node.x+1, node.y-1), \
@@ -34,8 +42,8 @@ def calcG(node):
 
 
 def calcH(node, finish):
-    return 0
-    return dist(node, finish)
+    # somehow factor in the cost of other nodes
+    return abs(finish.x - node.x) + abs(finish.y - node.y)
 
 
 def search(start, finish, factory):
@@ -50,27 +58,36 @@ def search(start, finish, factory):
  
     """
 
+    finishNode = factory(finish)
+    startNode = factory(start)
+    startNode.h = calcH(startNode, finishNode)
+
     # used to locate nodes in the heap and modify their f scores
     heapIndex = {}
+    entry = [startNode.g + startNode.h, startNode]
+    heapIndex[startNode] = entry
 
-    success  = False
+    openlist = [entry]
+
     nodeHash = {}
-    finish = Node(finish)
-    start = Node(start)
-    start.h = dist(start, finish) 
-    openlist = [(start.g + start.h, start)]
+    nodeHash[start] = startNode
 
     while openlist:
-        f, keyNode = heappop(openlist)
         try:
+            f, keyNode = heappop(openlist)
             while keyNode == None:
                 f, keyNode = heappop(openlist)
-        except:
+        except IndexError:
             break
+        else:
+            del heapIndex[keyNode]
 
-        if keyNode.x == finish.x and keyNode.y == finish.y:
-            success = True
-            break
+        if keyNode == finishNode:
+            path = [(keyNode.x, keyNode.y)]
+            while not keyNode.parent == None:
+                keyNode = keyNode.parent
+                path.append((keyNode.x, keyNode.y))
+            return path
 
         keyNode.is_closed = 1
 
@@ -80,85 +97,40 @@ def search(start, finish, factory):
             except KeyError:
                 node = factory(neighbor)
                 if node:
+                    nodeHash[neighbor] = node
                     score = keyNode.g + dist(keyNode, node)
                     node.parent = keyNode
                     node.g = score
-                    node.h = calcH(node, finish)
+                    node.h = calcH(node, finishNode)
                     entry = [node.g + node.h, node]
                     heapIndex[node] = entry
                     heappush(openlist, entry)
-                continue
+            else:
+                if not node.is_closed:
+                    score = keyNode.g + dist(keyNode, node)
+                    if score < node.g:
+                        node.parent = keyNode
+                        node.g = score
+                        entry = heapIndex.pop(node)
+                        entry[1] = None
+                        newentry = [node.g + node.h, node]
+                        heapIndex[node] = newentry
+                        heappush(openlist, newentry)
 
-            if not node.is_closed:
-                score = keyNode.g + dist(keyNode, node)
-                if score < node.g:
-                    node.parent = keyNode
-                    node.g = score
-                    entry = heapIndex.pop(node)
-                    entry[-1] = None
-                    entry = [node.g + node.h, node]
-                    heapIndex[node] = entry
-                    heappush(openlist, entry)
-
-    if success:
-        path = [(keyNode.x, keyNode.y)]
-        while not keyNode.parent == None:
-            keyNode = keyNode.parent
-            path.append((keyNode.x, keyNode.y))
-        return True, path
-
-    else:
-        return False, []
+    return []
 
 
-
-if __name__ == "__main__":
-    def print_point(point):
-        print "=====", point,"====="
-        for y in range(10):
-            for x in range(10):
-                if (x, y) == point:
-                    print "=",
-                else:
-                    print ".",
-            print ""
-        print ""
-
-
-    def print_path(area, path):
-        for y in range(10):
-            for x in range(10):
-                if not area[y][x] == 0:
-                    print "X",
-
-                elif (x,y) in path:
-                    print "=",
-                else:
-                    print ".",
-
-            print ""
-
-    m=\
-""".X........
-.X........
-.X........
-..........
-X.........
-..........
-....X.....
-..........
-..........
-.X........"""
-
-
-    area = []
-    for y in range(10):
-        area.append([0] * 10)
-
-    for y,line in enumerate(m.split()):
-        for x in range(10):
-            if line[x] != ".":
-                area[y][x] = 1
+def search_test(tests=1000):
+    area = [[0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0, 0, 0, 0]]
 
     def factory((x, y)):
         if x < 0 or y < 0:
@@ -173,12 +145,9 @@ X.........
         except IndexError:
             return None
 
-    v, path = search((0,0), (5,9), factory)
-    path.reverse()
+    return search((0,0), (5,9), factory)
 
-    print v, path
 
-    for p in path:
-        print_point(p)
+if __name__ == "__main__":
+    print  search_test()
 
-    print_path(area, path)

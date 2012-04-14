@@ -11,8 +11,8 @@ with multiple inputs and reconfiguring keys at runtime.
 
 provides a couple nice features:
     input can be reconfigured during runtime, without chaning game code
-    inputs can be changed during runtime: want a joystick, no problem
-    input commands keep track of buttons being held, as well
+    inputs can be changed during runtime: want a joystick? no problem
+    input commands keep track of buttons being held as well
 """
 
 

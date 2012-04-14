@@ -1,9 +1,6 @@
 from objects import GameObject
 import res
 
-import pygame
-
-
 """
 TODO: make some sort of manager class for animations
       would make resource sharing less expensive
@@ -16,6 +13,10 @@ def padimage(image):
     Pad the image with transparent pixels so the edges get antialised when
     rotated and scaled.
     """
+
+    import pygame
+
+
 
     # replacement surface that is slightly bigger then the original
     new = Surface(image.get_rect().inflate(2, 2).size, pygame.SRCALPHA)
@@ -65,8 +66,11 @@ class Animation(GameObject):
         load the images for use with pygame
         """
 
+        from pygame.image import load
+
+
         tw, th = self.size
-        image = pygame.image.load(self.filename)
+        image = load(self.filename)
         iw, ih = image.get_size()
         self.directions = ih/th
         self.frames = ([],) * self.directions

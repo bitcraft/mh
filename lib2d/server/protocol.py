@@ -5,7 +5,7 @@ from twisted.protocols.policies import TimeoutMixin
 
 SUPPORTED_PROTOCOL = 1
 
-class Lib2dProtocol(object, Protocol, TimeoutMixin):
+class Lib2dServerProtocol(object, Protocol, TimeoutMixin):
     """
     Lib2d server protocol
     """

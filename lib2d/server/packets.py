@@ -28,6 +28,39 @@ packets = {
         UBInt8("height"),
         UBInt8("players"),
     ),
+    2: Struct("handshake",
+        AlphaString("username"),
+    3: Struct("chat",
+        AlphaString("message"),
+    ),
+    4: Struct("time",
+        UBInt64("timestamp"),
+    5: Struct("position", position, grounded),
+    6: Struct("orientation", orientation, grounded),
+    7: Struct("location", position, orientation, grounded),
+    8: Struct("animate",
+        UBInt32("eid"),
+        Enum(UBInt8("animation"),
+            noop=0,
+            arm=1,
+            hit=2,
+            leave_bed=3,
+            start_sprint=4,
+            stop_sprint=5,
+            unknown=102,
+            crouch=104,
+            uncrouch=105,
+        ),
+    9: Struct("use",
+        UBInt32("eid"),
+        UBInt32("target"),
+        UBInt8("button"),
+    ),
+    10: Struct("health",
+        UBInt16("hp"),
+        UBInt16("fp"),
+        BFloat32("saturation"),
+
 }
 
 packets_by_name = dict((v.name, k) for (k, v) in packets.iteritems())
@@ -87,7 +120,7 @@ def parse_packets_incrementally(bytestream):
         yield header, payload
 
 
-def make_packet(packet, *args, **kwargs):
+def makePacket(packet, *args, **kwargs):
     """
     Constructs a packet bytestream from a packet header and payload.
 
