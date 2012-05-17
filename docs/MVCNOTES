@@ -1,0 +1,21 @@
+The Model manages the behavior and data of the application domain, responds to requests for information about its state (usually from the view), and responds to instructions to change state (usually from the controller). In event-driven systems, the model notifies observers (usually views) when the information changes so that they can react.
+The View renders the model into a form suitable for interaction, typically a user interface element. Multiple views can exist for a single model for different purposes. A view port typically has a one to one correspondence with a display surface and knows how to render to it.
+The Controller receives user input and initiates a response by making calls on model objects. A controller accepts input from the user and instructs the model and a view port to perform actions based on that input.
+
+
+
+model:
+    handles requests about state (from view)
+    handles requests to change state (from controller)
+    receives signals
+    send signal if state changes (allows for async)
+
+view:
+    makes requests to model to 'show' the state
+    receives signals (other feedback should be an exception)
+
+controller:
+    receives user input
+    makes requests to change state
+    tells view that something has changed
+    emits signals (to change state)
