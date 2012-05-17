@@ -1,5 +1,5 @@
 """
-Copyright 2010, 2011  Leif Theden
+Copyright 2010-2012  Leif Theden
 
 
 This file is part of lib2d.
@@ -223,7 +223,6 @@ class cMenu():
 
 
     def handle_event(self, event):
-
         if event.type != KEYDOWN: return
         key = event.key
 

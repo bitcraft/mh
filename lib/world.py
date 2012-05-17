@@ -4,9 +4,9 @@ Game world for "mh"
 this will create a pickle that can be read by the library
 """
 
-from lib2d.server.area import AbstractArea, Area
+from lib2d.server.area import AbstractArea, AdventureArea
 from lib2d.common.avatar import Avatar, Animation, StaticAnimation
-from lib2d.common.objects import AvatarObject
+from lib2d.common.objects import GameObject, AvatarObject
 from lib2d.common import res
 from lib.rpg import Hero, NPC
 from lib.buildarea import fromTMX
@@ -16,7 +16,7 @@ from collections import defaultdict
 
 def build():
     # build the initial environment
-    uni = AbstractArea()
+    uni = GameObject()
     uni.name = 'MH'
     uni.setGUID(0)
 
@@ -175,14 +175,16 @@ def build():
     village.setGUID(5001)
 
 
-    home = fromTMX(uni, "building0.tmx")
+    return uni
+
+    home = FromTMX(uni, "building0.tmx")
     home.setName("Building0")
     home.setGUID(5002)
 
 
     # finialize exits by adding the needed references
 
-    allAreas = [ i for i in uni.getChildren() if isinstance(i, Area) ]
+    allAreas = [ i for i in uni.getChildren() if isinstance(i, AbstractArea) ]
     allExits = defaultdict(list)
 
     # make table of all exits

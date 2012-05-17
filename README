@@ -1,6 +1,6 @@
 this is a ongoing project for some sort of multiplayer adventure game.
 
-a world of warning, this repository is generally not stable, and may not run.  there is a stable version under the downloads section.
+a wold of warning, this repository is generally not stable, and may not run.  there is a stable version under the downloads section.
 
 server:
     network support coming soon with twisted integration

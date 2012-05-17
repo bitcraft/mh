@@ -1,4 +1,4 @@
-from lib2d.server.area import Area
+from lib2d.server.area import AdventureArea
 from lib2d.common.bbox import BBox
 from lib2d.common import res
 from pytmx import tmxloader
@@ -18,7 +18,7 @@ def fromTMX(parent, mapname):
         return y*data.tileheight, x*data.tilewidth, l
 
 
-    area = Area()
+    area = AdventureArea()
     parent.add(area)
     area.setParent(parent)
     area.mappath = res.mapPath(mapname)

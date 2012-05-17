@@ -1,4 +1,5 @@
 from lib2d.client.gamestate import GameState
+from lib2d.client.waitscreen import WaitScreen
 from lib2d.client.cmenu import cMenu
 from lib2d.client.tilemap import BufferedTilemapRenderer
 from lib2d.client.statedriver import driver as sd
@@ -85,11 +86,8 @@ class TitleScreen(GameState):
             ('Quit Game', self.quit_game)],
             font="northwoodhigh.ttf", font_size=24)
 
-        self.game = None
-
         self.menu.ready()
         self.change_map()
-
 
     def change_map(self):
         pos = list(next(self.hotspots)[:])
@@ -101,6 +99,12 @@ class TitleScreen(GameState):
         self.surfaceQueue.put(clip)
         self.thread = SubPixelThread(self.surfaceQueue, self.subpixelQueue)
         self.thread.start()
+
+
+    def deactivate(self):
+        self.thread.running = False
+        while not self.thread.done:
+            pass
 
 
     def update(self, time):
@@ -164,10 +168,19 @@ class TitleScreen(GameState):
 
 
     def new_game(self):
+        from lib2d.server.start import start_local
+
+
+        def build():
+            print "world stat"
+            game = world.build()
+            sd.start(WorldState(game.getChildByGUID(5001)))
+
         res.fadeoutMusic(1000)
-        self.game = world.build()
-        village = self.game.getChildByGUID(5001)
-        sd.start_restart(WorldState(village))
+        #sd.start(WaitScreen(build))
+        game = world.build()
+        start_local()
+        sd.start(WorldState(game.getChildByGUID(5001)))
 
 
     def load_game(self):

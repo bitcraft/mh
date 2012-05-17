@@ -387,9 +387,13 @@ class TiledMap(TiledElement):
 
     def mapGID(self, real_gid):
         try:
-            return self.gidmap[real_gid]
+            return self.gidmap[int(real_gid)]
         except KeyError:
+            print "\n".join(self.gidmap.keys())
             return None
+        except TypeError:
+            msg = "GID's must be an integer"
+            raise TypeError, msg
 
 
     def loadTileImages(self, filename):
@@ -788,7 +792,6 @@ def load_tmx(filename, *args, **kwargs):
             t, tiles = parse_tileset(tmxdata, node)
             tmxdata.tilesets.append(t)
             tmxdata.tile_properties.update(tiles)
-            print tiles
 
         # we may have created new GID's because a tile was transformed.
         # go through tile properties and make copies if needed
@@ -995,7 +998,7 @@ def buildDistributionRects(tmxmap, layer, tileset=None, real_gid=None):
     if real_gid:
         try:
             gid, flags = tmxmap.mapGID(real_gid)[0]
-        except KeyError, IndexError:
+        except IndexError:
             msg = "GID #{} not found"
             raise ValueError, msg.format(real_gid)
 

@@ -23,15 +23,23 @@ movt_fix = 1/math.sqrt(2)
 class SoundManager(object):
     def __init__(self):
         self.sounds = {}
+        self.last_played = {}
 
-    def loadSound(self, name, filename):
+    def loadSound(self, filename):
         self.sounds[filename] = res.loadSound(filename)
+        self.last_played[filename] = 0
 
-    def play(self, name, volume=1.0):
-        sound = self.sounds[name]
-        sound.set_volume(volume)
-        sound.stop()
-        sound.play()
+    def play(self, filename, volume=1.0):
+        now = time.time()
+        if self.last_played[filename] + .05 <= now:
+            self.last_played[filename] = now
+            sound = self.sounds[filename]
+            sound.set_volume(volume)
+            sound.play()
+
+    def unload(self):
+        self.sounds = {}
+        self.last_played = {}
 
 SoundMan = SoundManager()
     
@@ -160,25 +168,32 @@ class WorldState(GameState):
         self.msgBorder = pygame.Rect((0,mh,sw,sh-mh))
         self.hudBorder = pygame.Rect((mw,0,sw-mw,mh+6))
 
-        # play music if any has been set in tiled
-        #try:
-        #    res.playMusic(self.area.tmxdata.music)
-        #except AttributeError:
-        #    res.fadeoutMusic()
- 
-        # load tile sounds
-        for i, layer in enumerate(self.area.tmxdata.tilelayers):
-            props = self.area.tmxdata.getTilePropertiesByLayer(i)
-            for gid, tileProp in props:
-                for key, value in tileProp.items():
-                    if key[4:].lower() == "sound":
-                        SoundMan.loadSound(key, value)
+        # load sounds from area
+        for filename in self.area.soundFiles:
+            SoundMan.loadSound(filename)
 
 
     def deactivate(self):
-        # unload sounds
-        # unload pygame tiles from area
-        pass
+        res.fadeoutMusic(1000)
+
+        # unload the children
+        for child in self.area.getChildren():
+            child.unload()
+
+        self.area.music_pos = float(pygame.mixer.music.get_pos()) / 1000
+        SoundMan.unload()   
+
+ 
+    def reactivate(self):
+        # play music if any has been set in tiled
+        try:
+            pygame.mixer.music.stop()
+            res.playMusic(self.area.tmxdata.music, start=self.area.music_pos)
+        except AttributeError:
+            res.fadeoutMusic()
+            self.music_playing = False 
+        else:
+            self.music_playing = True   
 
        
     def _drawSidebar(self, surface, rect):
@@ -246,7 +261,7 @@ class WorldState(GameState):
         surface.set_clip(originalClip)
 
 
-    def _update(self, time):
+    def update(self, time):
         self.area.update(time)
         self.camera.update(time)
 

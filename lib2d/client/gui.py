@@ -1,4 +1,5 @@
-import lib2d.common.res
+from  lib2d.common import res
+
 import pygame
 from math import ceil
 from itertools import product

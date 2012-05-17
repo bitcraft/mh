@@ -1,5 +1,5 @@
 """
-Copyright 2010, 2011  Leif Theden
+Copyright 2010, 2011, 2012  Leif Theden
 
 
 This file is part of lib2d.
@@ -129,6 +129,7 @@ class StateDriver(object):
             else:
                 state.activate()
 
+
     def getCurrentState(self):
         try:
             return self._states[-1]
@@ -157,8 +158,8 @@ class StateDriver(object):
         """
 
         self._states.append(state)
-        self.getCurrentState().activate()
-        self.getCurrentState().activated = True
+        state.activate()
+        state.activated = True
 
 
     def start_restart(self, state):
@@ -219,10 +220,6 @@ class StateDriver(object):
         event_flush = pygame.USEREVENT
         pygame.time.set_timer(event_flush, 20)
 
-        # set an event to update the game state
-        #update_state = pygame.USEREVENT + 1
-        #pygame.time.set_timer(update_state, 30)
-
         # make sure our custom events will be triggered
         pygame.event.set_allowed([event_flush])
 
@@ -235,8 +232,12 @@ class StateDriver(object):
         while currentState:
             clock.tick(target_fps)
 
+            originalState = current_state()
+            currentState = originalState
+
             event = event_poll()
             while event:
+
 
                 # check each input for something interesting
                 for cmd in [ c.processEvent(event) for c in inputs ]:
@@ -271,9 +272,8 @@ class StateDriver(object):
 
                 event = event_poll()
 
-            originalState = current_state()
-            currentState = originalState
-
+            # it looks awkwards below, but it enforces 10 updates per a draw
+            # and makes the game run more reliably.  trust me.  im a doctor.
             if currentState:
                 time = target_fps / 10.0
 

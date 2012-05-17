@@ -478,7 +478,7 @@ class StaticAnimation(Animation):
             ck = image.get_colorkey()
             self.image = pygame.Surface(self.size)
             self.image.blit(image,(0,0),area=(x,y, self.size[0], self.size[1]))
-            image.set_colorkey(ck, pygame.RELACCEL) 
+            image.set_colorkey(ck, pygame.RLEACCEL) 
 
         else:
             self.image = image

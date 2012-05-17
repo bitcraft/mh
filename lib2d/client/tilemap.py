@@ -4,6 +4,7 @@ rewrite of the tilmap engine for lib2d.
 this time has tiled TMX maps built in and required
 """
 
+
 import pygame
 from itertools import product, chain, ifilter
 from pytmx import tmxloader
@@ -51,7 +52,7 @@ class BufferedTilemapRenderer(object):
         necessary to set the size with the function.
         """
 
-        import quadtree
+        from lib2d.common.quadtree import FastQuadTree
 
         left, self.xoffset = divmod(size[0] / 2, self.tmx.tilewidth)
         top,  self.yoffset = divmod(size[1] / 2, self.tmx.tileheight)
@@ -83,7 +84,7 @@ class BufferedTilemapRenderer(object):
             rect = pygame.Rect((x*self.tmx.tilewidth,y*self.tmx.tileheight),
                                (self.tmx.tilewidth, self.tmx.tileheight))
             rects.append(rect)
-        self.layerQuadtree = quadtree.FastQuadTree(rects, 4)
+        self.layerQuadtree = FastQuadTree(rects, 4)
 
         self.idle = False
         self.blank = True 

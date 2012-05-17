@@ -15,6 +15,28 @@ class CollisionError(Exception):
     pass
 
 
+class Sound(object):
+    """
+    Class that manages how sounds are played and emitted from the area
+    """
+
+    def __init__(self, filename, ttl):
+        self.filename = filename
+        self.ttl = ttl
+        self._done = 0
+        self.timer = 0
+
+    def update(self, time):
+        if self.timer >= self.ttl:
+            self._done = 1
+        else:
+            self.timer += time
+
+    @property
+    def done(self):
+        return self._done
+
+
 class ExitTile(FrozenRect):
     def __init__(self, rect, exit):
         FrozenRect.__init__(self, rect)
@@ -73,33 +95,6 @@ class Body(object):
 
 
 class AbstractArea(GameObject):
-    pass
-
-
-class Sound(object):
-    """
-    Class that manages how sounds are played and emitted from the area
-    """
-
-    def __init__(self, filename, ttl):
-        self.filename = filename
-        self.ttl = ttl
-        self._done = 0
-        self.timer = 0
-
-    def update(self, time):
-        if self.timer >= self.ttl:
-            self._done = 1
-        else:
-            self.timer += time
-
-    @property
-    def done(self):
-        return self._done
-
-
-
-class Area(AbstractArea):
     """3D environment for things to live in.
     Includes basic pathfinding, collision detection, among other things.
 
@@ -112,7 +107,7 @@ class Area(AbstractArea):
 
     there are a few hacks to be aware of:
         bodies move in 3d space, but level geometry is 2d space
-        when using pygame rects, the y value maps to the z value in the area
+        you must use either the platformer area or adventure area
 
     a word on the coordinate system:
         coordinates are 'right handed'
@@ -138,9 +133,7 @@ class Area(AbstractArea):
     contains metadata that lib2d can use to layout and position objects
     correctly.
 
-    REWRITE: FUNCTIONS HERE SHOULD NOT CHANGE STATE
-
-    NOTE: some of the code is specific for maps from the tmxloader
+    NOTE: some of the code is specific for maps from PyTMX
     """
 
 
@@ -153,34 +146,25 @@ class Area(AbstractArea):
 
 
     def __init__(self):
-        AbstractArea.__init__(self)
-        self.exits    = {}
+        GameObject.__init__(self)
+        self.time = 0
+        self.exits = {}
         self.geometry = {}       # geometry (for collisions) of each layer
-        self.bodies = {}         # hack
+        self.bodies = {}         # not sure if...
         self.extent = None       # absolute boundries of the area
         self.joins = []          # records simple joins between bodies
         self.messages = []
-        self.time = 0
         self.tmxdata = None
         self.mappath = None
         self.sounds = []
         self.soundFiles = []
         self.inUpdate = False
-        self._addQueue = []
+        self._grounded = {}
         self._removeQueue = []
         self._addQueue = []
-        self.drawables = []      # HAAAAKCCCCKCK
-        self.changedAvatars = True #hack
-        self._grounded = {}
-        self.music_pos = 0
 
-        self.flashes = []
         self.inUpdate = False
         self._removeQueue = []
-
-
-    def flash(self, position):
-        self.flashes.append(position)
 
 
     def load(self):
@@ -227,8 +211,8 @@ class Area(AbstractArea):
         body = Body(BBox(pos, thing.size), Vec2d(0,0), Vec2d(0,0), 0.0, \
                     parent=thing)
         self.bodies[thing] = body
-        AbstractArea.add(self, thing)
-        #AbstractArea.add(self, body)
+        GameObject.add(self, thing)
+        #GameObject.add(self, body)
         self.changedAvatars = True
 
 
@@ -237,7 +221,7 @@ class Area(AbstractArea):
             self._removeQueue.append(thing)
             return
 
-        AbstractArea.remove(self, thing)
+        GameObject.remove(self, thing)
         del self.bodies[thing]
         self.changedAvatars = True
 
@@ -446,21 +430,13 @@ class Area(AbstractArea):
         path = astar.search(start, finish, factory)
 
 
-    #def tileToWorld(self, (x, y, z)):
-    #    xx = int(x) * self.tmxdata.tileheight
-    #    yy = int(y) * self.tmxdata.tilewidth
-    #    return xx, yy, z
-
-
-    # platformer
     def worldToTile(self, (x, y, z)):
-        xx = int(y) / self.tmxdata.tilewidth
-        yy = int(z) / self.tmxdata.tileheight
-        zz = 0
-        return xx, yy, zz
+        raise NotImplementedError
+
 
     def pixelToWorld(self, (x, y, z)):
         return (y, x, z)
+
 
     def _worldToTile(self, (x, y)):
         return int(y)/self.tmxdata.tileheight, int(x)/self.tmxdata.tilewidth
@@ -484,67 +460,14 @@ class Area(AbstractArea):
         if filename not in [ s.filename for s in self.sounds ]:
             if thing:
                 pos = self.bodies[thing].bbox.center
-            emitSound.send(sender=self, filename=filename, position=pos)
+            #emitSound.send(sender=self, filename=filename, position=pos)
             self.sounds.append(Sound(filename, ttl))
 
 
     def update(self, time):
-        self.inUpdate = True
-        self.time += time
-
-        [ sound.update(time) for sound in self.sounds ]
-
-        for thing, body in self.bodies.items():
-            self.updatePhysics(body, time)
-            thing.update(time)
-
-        # awkward looping allowing objects to be added/removed during update
-        self.inUpdate = False
-        [ self.add(thing) for thing in self._addQueue ] 
-        self._addQueue = []
-        [ self.remove(thing) for thing in self._removeQueue ] 
-        self._removeQueue = []
+        raise NotImplementedError
 
 
-    # 2d physics only
-    def updatePhysics(self, body, time):
-        """
-        basic physics
-        """
-     
-        time = time / 100
-
-        if body.gravity:
-            body.acc += Vec2d((0, 9.8)) * time
-    
-        body.vel = body.acc * time
-        y, z = body.vel
-
-        if not y==0:
-            self.movePosition(body, (0, y, 0))
-
-        if z > 0: 
-            falling = self.movePosition(body, (0, 0, z))
-            if falling:
-                body.isFalling = True
-                self._grounded[body] = False
-            else:
-                if body.isFalling:
-                    body.parent.fallDamage(body.vel.y)
-                body.isFalling = False
-                self._grounded[body] = True
-                if int(body.vel.y) >= 1:
-                    body.acc.y = -body.acc.y * .2
-                else:
-                    body.acc.y = 0
-        elif z < 0:
-            flying = self.movePosition(body, (0, 0, z))
-            if flying:
-                self._grounded[body] = False
-                body.isFalling = True
-
-
-    # platformer
     def grounded(self, body):
         try:
             return self._grounded[body]
@@ -565,7 +488,6 @@ class Area(AbstractArea):
 
         # TODO: calc layer value
         layer = 0
-
 
         try:
             rect = self.toRect(bbox)
@@ -595,16 +517,15 @@ class Area(AbstractArea):
 
     def testCollideGeometryAll(self):
         # return list of all collisions between bodies and level geometry
-        pass
+        raise NotImplementedError
 
 
     def getPositions(self):
         return [ (o, b.origin) for (o, b) in self.bboxes.items() ]
 
 
-    # for platformers
     def toRect(self, bbox):
-        return Rect((bbox.y, bbox.z+bbox.height, bbox.width, bbox.height))
+        raise NotImplementedError
 
 
     def getOldPosition(self, body):
@@ -613,7 +534,7 @@ class Area(AbstractArea):
 
     def _sendBodyMove(self, body, caller, force=None):
         position = body.bbox.origin
-        bodyAbsMove.send(sender=self, body=body, position=position, caller=caller, force=force)
+        #bodyAbsMove.send(sender=self, body=body, position=position, caller=caller, force=force)
 
     
     def warpBody(self):
@@ -659,13 +580,12 @@ class Area(AbstractArea):
         body.bbox = bbox
 
 
-    # for platformers
     def applyForce(self, body, (x, y, z)):
-        body.acc += Vec2d(y, z)
+        raise NotImplementedError
 
 
     def setForce(self, body, (x, y, z)):
-        body.acc = Vec2d(y, z)
+        raise NotImplementedError
 
 
     def getOrientation(self, thing):
@@ -698,3 +618,106 @@ class Area(AbstractArea):
 
     def unstick(self, body):
         pass
+
+
+
+class PlatformerArea(AbstractArea):
+    def tileToWorld(self, (x, y, z)):
+        raise NotImplementedError
+
+    def applyForce(self, body, (x, y, z)):
+        body.acc += Vec2d(y, z)
+
+
+    def setForce(self, body, (x, y, z)):
+        body.acc = Vec2d(y, z)
+
+
+    def toRect(self, bbox):
+        return Rect((bbox.y, bbox.z+bbox.height, bbox.width, bbox.height))
+
+
+    def update(self, time):
+        self.inUpdate = True
+        self.time += time
+
+        [ sound.update(time) for sound in self.sounds ]
+
+        for thing, body in self.bodies.items():
+            self.updatePhysics(body, time)
+            thing.update(time)
+
+        # awkward looping allowing objects to be added/removed during update
+        self.inUpdate = False
+        [ self.add(thing) for thing in self._addQueue ] 
+        self._addQueue = []
+        [ self.remove(thing) for thing in self._removeQueue ] 
+        self._removeQueue = []
+
+
+    def updatePhysics(self, body, time):
+        """
+        basic physics for platformers
+        """
+     
+        time = time / 100
+
+        if body.gravity:
+            body.acc += Vec2d((0, 9.8)) * time
+    
+        body.vel = body.acc * time
+        y, z = body.vel
+
+        if not y==0:
+            self.movePosition(body, (0, y, 0))
+
+        if z > 0: 
+            falling = self.movePosition(body, (0, 0, z))
+            if falling:
+                body.isFalling = True
+                self._grounded[body] = False
+            else:
+                if body.isFalling:
+                    body.parent.fallDamage(body.vel.y)
+                body.isFalling = False
+                self._grounded[body] = True
+                if int(body.vel.y) >= 1:
+                    body.acc.y = -body.acc.y * .2
+                else:
+                    body.acc.y = 0
+        elif z < 0:
+            flying = self.movePosition(body, (0, 0, z))
+            if flying:
+                self._grounded[body] = False
+                body.isFalling = True
+
+
+    def worldToTile(self, (x, y, z)):
+        xx = int(y) / self.tmxdata.tilewidth
+        yy = int(z) / self.tmxdata.tileheight
+        zz = 0
+        return xx, yy, zz
+
+
+class AdventureArea(AbstractArea):
+    def tileToWorld(self, (x, y, z)):
+        xx = int(x) * self.tmxdata.tileheight
+        yy = int(y) * self.tmxdata.tilewidth
+        return xx, yy, z
+
+
+    def update(self, time):
+        self.inUpdate = True
+        self.time += time
+
+        [ sound.update(time) for sound in self.sounds ]
+
+        for thing, body in self.bodies.items():
+            thing.update(time)
+
+        # awkward looping allowing objects to be added/removed during update
+        self.inUpdate = False
+        [ self.add(thing) for thing in self._addQueue ] 
+        self._addQueue = []
+        [ self.remove(thing) for thing in self._removeQueue ] 
+        self._removeQueue = []
