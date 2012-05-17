@@ -25,7 +25,7 @@ class BBox(object):
     work as expected.
     """
 
-    __slots__ = ['_x', '_y', '_z', '_w', '_h', '_d']
+    __slots__ = ['_x', '_y', '_z', '_d', '_w', '_h']
 
     def __init__(self, *arg):
         """
@@ -38,27 +38,27 @@ class BBox(object):
             arg = arg[0]
 
         if isinstance(arg, BBox):
-            self._x, self._y, self._z, self._w, self._h, self._d = arg
+            self._x, self._y, self._z, self._d, self._w, self._h = arg
         elif isinstance(arg, list) or isinstance(arg, tuple):
             if len(arg) == 2:
                 self._x, self._y, self._z = arg[0]
-                self._w, self._h, self._d = arg[1]
+                self._d, self._w, self._h = arg[1]
             elif len(arg) == 6:
-                self._x, self._y, self._z, self._w, self._h, self._d = arg
+                self._x, self._y, self._z, self._d, self._w, self._h = arg
             else:
                 raise ValueError, arg
         elif hasattr(arg, 'bbox'):
-            self._x, self._y, self._z, self._w, self._h, self._d = arg.bbox
+            self._x, self._y, self._z, self._d, self._w, self._h = arg.bbox
         else:
             try:
-                self._x, self._y, self._z, self._w, self._h, self._d = arg
+                self._x, self._y, self._z, self._d, self._w, self._h = arg
             except:
                 raise ValueError, arg
 
 
     def __repr__(self):
         return "<bbox: {} {} {} {} {} {}>".format(
-            self._x, self._y, self._z, self._w, self._h, self._d)
+            self._x, self._y, self._z, self._d, self._w, self._h)
 
  
     def __len__(self): return 6
@@ -73,11 +73,11 @@ class BBox(object):
         elif key == 2:
             return self._z
         elif key == 3:
-            return self._w
-        elif key == 4:
-            return self._h
-        elif key == 5:
             return self._d
+        elif key == 4:
+            return self._w
+        elif key == 5:
+            return self._h
         raise IndexError, key
 
 
@@ -87,12 +87,12 @@ class BBox(object):
 
     def move(self, x, y, z):
         return BBox(self._x + x, self._y + y, self._z + z,
-                    self._w,     self._h,     self._d)
+                    self._d,     self._w,     self._h)
 
 
-    def inflate(self, x, y):
-        return Rect((self._x - x / 2, self._y - y / 2, self._z - z /2,
-                     self._w + x,     self._h + y,     self._d + z))
+    def inflate(self, x, y, z):
+        return BBox((self._x - x / 2, self._y - y / 2, self._z - z / 2,
+                     self._d + x,     self._w + y,     self._h + z))
 
 
     def clamp(self):
@@ -116,7 +116,7 @@ class BBox(object):
         right  = max( r.right  for r in rects )
         top    = max( r.top    for r in rects )
         depth, width, height = self.size
-        return Rect(front, left, bottom, depth, width, height)
+        return Rect(back, left, bottom, depth, width, height)
 
 
     def fit(self):
@@ -156,9 +156,9 @@ class BBox(object):
 
 
     def collidepoint(self, (x, y, z)):
-        return (x >= self._x and x < self._x + self._w and 
-                y >= self._y and y < self._y + self._h and
-                z >= self._z and z < self._z + self._z)
+        return (x >= self._x and x < self._x + self._d and 
+                y >= self._y and y < self._y + self._w and
+                z >= self._z and z < self._z + self._h)
 
 
     def collidebbox(self, other):
@@ -228,6 +228,16 @@ class BBox(object):
     @property
     def bottomcenter(self):
         return self._x + self._d / 2, self._y + self._w / 2, self._z
+
+
+    @property
+    def topcenter(self):
+        return self._x + self._d / 2, self._y + self._w / 2, self._z + self._h
+
+
+    @property
+    def center(self):
+        return self._x + self._d / 2, self._y + self._w / 2, self._z + self._h /2
 
 
     @property

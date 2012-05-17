@@ -1,12 +1,18 @@
+"""
+Example GameState for a top-down adventure game.
+This is the client portion of the game.
+"""
+
 from renderer import AreaCamera
 from rpg import GRAB, LIFT
 
-from lib2d.gamestate import GameState
-from lib2d.statedriver import driver as sd
-from lib2d.buttons import *
-from lib2d.vec import Vec2d
-from lib2d.signals import *
-from lib2d import tmxloader, res, gui
+from lib2d.client.gamestate import GameState
+from lib2d.client.statedriver import driver as sd
+from lib2d.client.buttons import *
+from lib2d.client import gui
+from lib2d.common.vec import Vec2d
+from lib2d.common import res
+from pytmx import tmxloader
 
 import math, pygame
 
@@ -26,8 +32,6 @@ class SoundManager(object):
         sound.set_volume(volume)
         sound.stop()
         sound.play()
-
-
 
 SoundMan = SoundManager()
     
@@ -255,54 +259,8 @@ class WorldState(GameState):
             self.area.movePosition(self.hero, (x, y, 0), True, caller=self)
 
 
-    @receiver(timeSignal)
-    def update(self, sender, **kwargs):
-        time = kwargs['time']
-        print kwargs
-        sender.update(time)
-
-
     def handle_commandlist(self, cmdlist):
         self.controller.process(cmdlist)
 
-
-
-"""
-Below are functions to handle signals sent from the area
-"""
-
-@receiver(emitSound)
-def playSound(sender, **kwargs):
-    SoundMan.play(kwargs['filename'])
-
-
-@receiver(bodyAbsMove)
-def bodyMove(sender, **kwargs):
-    area = sender
-    body = kwargs['body']
-    position = kwargs['position']
-    state = kwargs['caller']
-
-    if state == None:
-        return
-
-    if body == state.hero:
-        body.avatar.play("walk")
-        state.camera.center(position)
-
-
-@receiver(bodyWarp)
-def bodyWarp(sender, **kwargs):
-    area = sender
-    body = kwargs['body']
-    destination = kwargs['destination']
-    state = kwargs['caller']
-
-    if state == None:
-        return
-
-    if body == state.hero:
-        sd.push(WorldState(destination))
-        sd.done()
 
 

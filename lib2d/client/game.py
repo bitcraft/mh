@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from lib2d.statedriver import driver as sd
-from lib2d import gfx
+from lib2d.client.statedriver import driver as sd
+from lib2d.client import gfx
 import pygame
 
 

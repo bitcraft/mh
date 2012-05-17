@@ -132,3 +132,9 @@ the use of signals may be lost now, i will see where that will go once i get the
 
 achievements should be built into the game.  this means that all state changes should be run through a achievement checker and then applied to the player's 'account'.
 if all state changes, and actions tracked, then that will cover 90% of achievements.  
+
+Quadtree:
+	+ Fast collision detection
+	+ Great for static geometry
+	- Slow add/remove of nodes
+

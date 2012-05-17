@@ -6,6 +6,7 @@ this time has tiled TMX maps built in and required
 
 import pygame
 from itertools import product, chain, ifilter
+from pytmx import tmxloader
 
 
 # this image will be used when a tile cannot be loaded
@@ -37,8 +38,6 @@ class BufferedTilemapRenderer(object):
     """
 
     def __init__(self, tmx, rect, **kwargs):
-        import tmxloader
-
         self.default_image = generateDefaultImage((tmx.tilewidth,
                                                    tmx.tileheight))
         self.tmx = tmx
@@ -86,6 +85,7 @@ class BufferedTilemapRenderer(object):
             rects.append(rect)
         self.layerQuadtree = quadtree.FastQuadTree(rects, 4)
 
+        self.idle = False
         self.blank = True 
         self.queue = None
 
@@ -100,7 +100,10 @@ class BufferedTilemapRenderer(object):
         x, y = int(x), int(y)
 
         if (self.oldX == x) and (self.oldY == y):
+            self.idle = True
             return
+
+        self.idle = False
 
         # calc the new postion in tiles and offset
         left, self.xoffset = divmod(x-self.halfWidth,  self.tmx.tilewidth)
@@ -196,26 +199,21 @@ class BufferedTilemapRenderer(object):
 
         if surface:
             for i, t in enumerate(self.tilemap.images):
-                if not t == 0: self.tilemap.images[i] = t.convert(surface)
+                if t: self.tilemap.images[i] = t.convert(surface)
             self.buffer = self.buffer.convert(surface)
 
         elif depth or flags:
             for i, t in enumerate(self.tilemap.images):
-                if not t == 0:
+                if t:
                     self.tilemap.images[i] = t.convert(depth, flags)
             self.buffer = self.buffer.convert(depth, flags)
 
 
     def queueEdgeTiles(self, (x, y)):
         """
-        add the tiles on the edge that need to be redrawn to the queue also,
-        for colorkey layers, we will fill the new edge with the colorkey color
-        here
-
-        uses a standard python list for the queue
+        add the tiles on the edge that need to be redrawn to the queue.
+        uses a iterator for the queue
         override if you want a different type of queue
-
-        for internal use only
         """
 
         if self.queue == None:
@@ -251,12 +249,12 @@ class BufferedTilemapRenderer(object):
             self.queue = chain(p, self.queue)
 
 
-    def update(self, time):
+    def update(self, time=None):
         """
         the drawing operations and management of the buffer is handled here.
         if you notice that the tiles are being drawn while the screen
         is scrolling, you will need to adjust the number of tiles that are
-        bilt per update.
+        bilt per update or increase update frequency.
         """
 
         if self.queue:
@@ -275,7 +273,7 @@ class BufferedTilemapRenderer(object):
                     break
 
                 image = getTile((x, y, l))
-                if not image == 0:
+                if image:
                     bufblit(image, (x * tw - ltw, y * th - tth))
 
 
@@ -285,14 +283,13 @@ class BufferedTilemapRenderer(object):
     
         surfaces may optionally be passed that will be blited onto the surface.
         this must be a list of tuples containing a layer number, image, and
-        rect in screen coordinates.  surfaces will be drawn in oder passed,
+        rect in screen coordinates.  surfaces will be drawn in order passed,
         and will be correctly drawn with tiles from a higher layer overlap
         the surface.
 
         passing a list here will correctly draw the surfaces to create the
         illusion of depth.
 
-        TODO: make sure the soccrect rects are returned for dirty updates
         """
 
         if self.blank:
@@ -327,25 +324,20 @@ class BufferedTilemapRenderer(object):
             dirtyRect = dirtyRect.move(ox, oy)
             for r in self.layerQuadtree.hit(dirtyRect):
                 x, y, tw, th = r
-                if dirtyRect.bottom < y+th:
-                    # create illusion of depth by sorting images and
-                    # tiles that are on the same layer.  if the image is
-                    # lower than the tile, don't reblit the tile
-                    tile = getTile((x/tw + left, y/th + top, layer))
-                    if not tile == 0:
-                        surblit(tile, (x-ox, y-oy))
-
-                for l in range(layer+1,len(self.tmx.visibleTileLayers)):
+                for l in range(layer+1, len(self.tmx.visibleTileLayers)):
                     # there is a collision between a tile and a image, so
                     # we simply reblit the affected tiles over the sprite
                     tile = getTile((x/tw + left, y/th + top, l))
-                    if not tile == 0:
+                    if tile:
                         surblit(tile, (x-ox, y-oy))
 
         # restore clipping area
         surface.set_clip(origClip)
 
-        return self.rect
+        if self.idle:
+            return [ i[0] for i in dirty ]
+        else:
+            return [ self.rect ]
 
 
     def flushQueue(self):
@@ -361,10 +353,9 @@ class BufferedTilemapRenderer(object):
             tth = self.view.top * th
             getTile = self.getTileImage
 
-            images = [ (i, getTile(i)) for i in self.queue ]
+            images = ifilter(lambda x: x[1], ((i, getTile(i)) for i in self.queue) )
 
-            [ blit(image, (x*tw-ltw, y * th-tth))
-              for ((x,y,l), image) in ifilter(lambda x: x[1], images) ]
+            [ blit(image, (x*tw-ltw, y * th-tth)) for ((x,y,l), image) in images ]
 
             self.queue = None
 
@@ -455,3 +446,4 @@ class ShadowMask(object):
 
     def draw(self, surface, origin):
         pass        
+

@@ -1,17 +1,18 @@
-from lib2d.gamestate import GameState
-from lib2d.cmenu import cMenu
-from lib2d.tilemap import BufferedTilemapRenderer
-from lib2d.statedriver import driver as sd
-from lib2d.banner import TextBanner
-from lib2d.subpixelsurface import SubPixelSurface
-from lib2d.objects import loadObject
-from lib2d import res
+from lib2d.client.gamestate import GameState
+from lib2d.client.cmenu import cMenu
+from lib2d.client.tilemap import BufferedTilemapRenderer
+from lib2d.client.statedriver import driver as sd
+from lib2d.client.banner import TextBanner
+from lib2d.client.subpixelsurface import SubPixelSurface
+from lib2d.common.objects import loadObject
+from lib2d.common import res
 
 from pygame import Rect, Surface
 import pygame
 
 from worldstate import WorldState
 from cutscene import Cutscene
+import world
 
 from collections import deque
 from random import randint, random, uniform
@@ -32,10 +33,12 @@ class SubPixelThread(Thread):
         Thread.__init__(self)
         self.inQueue = inQueue
         self.outQueue = outQueue
+        self.running = True
+        self.done = False
 
 
     def run(self):
-        while 1:
+        while self.running:
 
             try:
                 surface = self.inQueue.get(0)
@@ -45,6 +48,8 @@ class SubPixelThread(Thread):
                 subpix = SubPixelSurface(surface, 10, 10)
                 self.outQueue.put(subpix)
                 self.inQueue.task_done()
+
+            if not self.running: self.done = True
 
 
 class TitleScreen(GameState):
@@ -62,7 +67,7 @@ class TitleScreen(GameState):
         res.fadeoutMusic()
 
         self.maps = []
-        self.change_delay = 8000        # seconds until map moves to next point
+        self.change_delay = 2000        # seconds until map moves to next point
         self.map_fadeout = 60.0         # must be a float
         self.last_update = 0
         self.surfaceQueue = queue()
@@ -75,10 +80,12 @@ class TitleScreen(GameState):
         self.menu = cMenu(Rect((42,20), sd.get_size()),
             20, 5, 'vertical', 100,
             [('New Game', self.new_game),
-            ('Battle Test', self.continue_game),
+            ('Load Game', self.load_game),
             ('Introduction', self.show_intro),
             ('Quit Game', self.quit_game)],
             font="northwoodhigh.ttf", font_size=24)
+
+        self.game = None
 
         self.menu.ready()
         self.change_map()
@@ -157,12 +164,22 @@ class TitleScreen(GameState):
 
 
     def new_game(self):
-        uni = loadObject("mh")
-        village = uni.getChildByGUID(1001)
+        res.fadeoutMusic(1000)
+        self.game = world.build()
+        village = self.game.getChildByGUID(5001)
         sd.start_restart(WorldState(village))
 
-    def continue_game(self):
-        sd.start_restart(BattleState(None, None))
+
+    def load_game(self):
+        res.fadeoutMusic(1000)
+        try:
+            path = os.path.join("resources", "saves", "save")
+            self.game = loadObject(path)
+        except IOError:
+            return self.new_game()
+
+        level = self.game.getChildByGUID(5001)
+        sd.start(WorldState(level))
 
 
     def show_intro(self):
@@ -171,5 +188,8 @@ class TitleScreen(GameState):
 
 
     def quit_game(self):
-       sd.done() 
+        self.thread.running = False
+        while not self.thread.done:
+            pass
+        sd.done() 
 

@@ -1,8 +1,26 @@
-import gfx
-from signals import *
-from playerinput import KeyboardPlayerInput
+"""
+Copyright 2010, 2011  Leif Theden
 
+
+This file is part of lib2d.
+
+lib2d is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+lib2d is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with lib2d.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+import gfx
 import pygame
+from playerinput import KeyboardPlayerInput
 from collections import deque
 from itertools import cycle, islice
 from pygame.locals import *
@@ -13,6 +31,8 @@ player's input doesn't get checked every loop.  it is checked
 every 15ms and then handled.  this prevents the game logic
 from dealing with input too often and slowing down rendering.
 """
+
+target_fps = 30
 
 
 inputs = []
@@ -180,15 +200,6 @@ class StateDriver(object):
                 nexts = cycle(islice(nexts, pending))
 
 
-    def tick(self, time):
-        """
-        send a tick to the game world
-        send the amount of time to simulate
-        """
-
-        timeSignal.send(sender=self, time=time)
-
-
     def run(self):
         """
         run the state driver.
@@ -206,7 +217,11 @@ class StateDriver(object):
 
         # set an event to flush out commands
         event_flush = pygame.USEREVENT
-        pygame.time.set_timer(pygame.USEREVENT, 30)
+        pygame.time.set_timer(event_flush, 20)
+
+        # set an event to update the game state
+        #update_state = pygame.USEREVENT + 1
+        #pygame.time.set_timer(update_state, 30)
 
         # make sure our custom events will be triggered
         pygame.event.set_allowed([event_flush])
@@ -218,13 +233,13 @@ class StateDriver(object):
         
         currentState = current_state()
         while currentState:
-            time = clock.tick(20)
+            clock.tick(target_fps)
 
             event = event_poll()
             while event:
 
                 # check each input for something interesting
-                for cmd in [ c.getCommand(event) for c in inputs ]:
+                for cmd in [ c.processEvent(event) for c in inputs ]:
                     rawcmds += 1
                     if (cmd != None) and (cmd[:2] not in checkedcmds):
                         checkedcmds.append(cmd[:2])
@@ -238,7 +253,7 @@ class StateDriver(object):
                 # do we flush input now?
                 elif event.type == pygame.USEREVENT:
                     currentState.handle_commandlist(cmdlist)
-                    [ currentState.handle_commandlist(i.getHeld())
+                    [ currentState.handle_commandlist(i.getState())
                     for i in inputs ]
                     rawcmds = 0
                     checkedcmds = []
@@ -260,21 +275,45 @@ class StateDriver(object):
             currentState = originalState
 
             if currentState:
-                time = time / 4.0
+                time = target_fps / 10.0
 
-                self.tick(time)
+                currentState.update(time)
                 currentState = current_state()
                 if not currentState == originalState: continue
 
-                self.tick(time)
+                currentState.update(time)
                 currentState = current_state()
                 if not currentState == originalState: continue
 
-                self.tick(time)
+                originalState.update(time)
                 currentState = current_state()
                 if not currentState == originalState: continue
 
-                self.tick(time)
+                currentState.update(time)
+                currentState = current_state()
+                if not currentState == originalState: continue
+
+                currentState.update(time)
+                currentState = current_state()
+                if not currentState == originalState: continue
+
+                currentState.update(time)
+                currentState = current_state()
+                if not currentState == originalState: continue
+
+                originalState.update(time)
+                currentState = current_state()
+                if not currentState == originalState: continue
+
+                currentState.update(time)
+                currentState = current_state()
+                if not currentState == originalState: continue
+
+                currentState.update(time)
+                currentState = current_state()
+                if not currentState == originalState: continue
+
+                currentState.update(time)
                 currentState = current_state()
                 if not currentState == originalState: continue
 

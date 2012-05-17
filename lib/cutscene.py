@@ -1,7 +1,7 @@
-from lib2d.gamestate import GameState
-from lib2d.buttons import *
-from lib2d.statedriver import driver as sd
-from lib2d import res
+from lib2d.client.gamestate import GameState
+from lib2d.client.buttons import *
+from lib2d.client.statedriver import driver as sd
+from lib2d.common import res
 import pygame
 
 from dialog import TextDialog 

@@ -2,6 +2,7 @@ from collections import defaultdict
 
 from twisted.python import log
 from twisted.internet import reactor
+from twisted.internet.protocol import Factory
 from twisted.internet.task import LoopingCall
 
 from lib2d.server.protocol import Lib2dServerProtocol
@@ -16,7 +17,7 @@ class Lib2dFactory(Factory):
     The factory also manages one game world.
     """
 
-    protocol = Lib2dProtocol
+    protocol = Lib2dServerProtocol
 
     timestamp = None
     time = 0
@@ -27,10 +28,8 @@ class Lib2dFactory(Factory):
         """
 
         self.name = name
-
         self.world = None
         self.config = None
-
         self.protocols = dict()
         self.connectedIPs = defaultdict(int)
 

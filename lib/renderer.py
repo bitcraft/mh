@@ -1,5 +1,5 @@
-from lib2d.tilemap import BufferedTilemapRenderer
-from lib2d.objects import AvatarObject
+from lib2d.client.tilemap import BufferedTilemapRenderer
+from lib2d.common.objects import AvatarObject
 
 from pygame.rect import Rect
 

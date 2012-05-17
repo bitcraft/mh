@@ -1,7 +1,8 @@
-from lib2d.buttons import *
-from lib2d.gamestate import GameState
-from lib2d.statedriver import driver as sd
-from lib2d import res, gui
+from lib2d.client.buttons import *
+from lib2d.client.gamestate import GameState
+from lib2d.client.statedriver import driver as sd
+from lib2d.client import gui
+from lib2d.common import res
 
 from pygame.locals import *
 from pygame.surface import Surface

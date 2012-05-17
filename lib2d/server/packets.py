@@ -11,6 +11,53 @@ from construct import BitStruct, BitField
 from construct import StringAdapter, LengthValueAdapter, Sequence
 
 
+
+class DoubleAdapter(LengthValueAdapter):
+
+    def _encode(self, obj, context):
+        return len(obj) / 2, obj
+
+
+def AlphaString(name):
+    return StringAdapter(
+        DoubleAdapter(
+            Sequence(name,
+                UBInt16("length"),
+                MetaField("data", lambda ctx: ctx["length"] * 2),
+            )
+        ),
+        encoding="ucs2",
+    )
+
+
+dimensions = {
+    "earth": 0,
+    "sky": 1,
+    "nether": 255,
+}
+dimension = Enum(UBInt8("dimension"), **dimensions)
+
+grounded = Struct("grounded", UBInt8("grounded"))
+position = Struct("position",
+    BFloat64("x"),
+    BFloat64("y"),
+    BFloat64("stance"),
+    BFloat64("z")
+)
+orientation = Struct("orientation", BFloat32("rotation"), BFloat32("pitch"))
+
+
+faces = {
+    "noop": -1,
+    "-y": 0,
+    "+y": 1,
+    "-z": 2,
+    "+z": 3,
+    "-x": 4,
+    "+x": 5,
+}
+face = Enum(SBInt8("face"), **faces)
+
 packets = {
     0: Struct("ping",
         UBInt32("pid"),
@@ -90,7 +137,6 @@ packets = {
         SBInt32("z"),
         SBInt8("yaw"),
         SBInt8("pitch"),
-        metadata,
     ),
 
 }

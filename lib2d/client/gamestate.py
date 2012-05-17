@@ -5,10 +5,10 @@ class GameState(object):
 
     def __init__(self):
         """
-        Called when objest is instanced.
+        Called when object is instanced.
 
         Not a good idea to load large objects here since it is possible
-        that the state is simply instanced and placed in a queue.  It will
+        that the state is simply instanced and placed in a queue.  It would
         be wasteful.
 
         Ideally, any initialization will be handled in activate() since
@@ -61,7 +61,7 @@ class GameState(object):
 
     def handle_event(self, event):
         """
-        Called when there is an pygame event to process
+        Called when there is a lib2d or pygame event to process
 
         Better to use handle_command() or handle_commandlist()
         for player input

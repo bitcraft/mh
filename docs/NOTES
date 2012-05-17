@@ -1,8 +1,0 @@
-# resize the "700+ icon set to usable sizes"
-
-# remove the border of each image
-mogrify -shave 14x14
-
-# make the tilemap, thing...
-montage -geometry 64x64 -tile 25x32 *.png iconset.png
-

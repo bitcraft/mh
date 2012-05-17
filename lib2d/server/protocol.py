@@ -2,8 +2,13 @@ from twisted.internet.protocol import Protocol
 from twisted.internet import reactor
 from twisted.protocols.policies import TimeoutMixin
 
+# States of the protocol.
+(STATE_UNAUTHENTICATED, STATE_CHALLENGED, STATE_AUTHENTICATED, STATE_LOCATED
+) = range(4)
 
 SUPPORTED_PROTOCOL = 1
+
+
 
 class Lib2dServerProtocol(object, Protocol, TimeoutMixin):
     """
@@ -40,10 +45,12 @@ class Lib2dServerProtocol(object, Protocol, TimeoutMixin):
 
         self.setTimeout(30)
 
+
     def ping(self, container):
         now = timestamp_from_clock(reactor)
         then = container.pid
         self.latency = now - then
+
 
     def login(self, container):
         if container.protocol < SUPPORTED_PROTOCOL:
@@ -53,17 +60,22 @@ class Lib2dServerProtocol(object, Protocol, TimeoutMixin):
         else:
             reactor.callLater(0, self.authenticated)
 
+
     def chat(self, container):
         pass
+
 
     def position(self, container):
         pass
 
+
     def orientation(self, container):
         pass
 
+
     def quit(self, container):
         pass
+
 
     def challenged(self):
         """
@@ -71,6 +83,7 @@ class Lib2dServerProtocol(object, Protocol, TimeoutMixin):
         """
 
         self.state = STATE_CHALLENGED
+
 
     def authenticated(self):
         """
@@ -80,6 +93,7 @@ class Lib2dServerProtocol(object, Protocol, TimeoutMixin):
         self.state = STATE_AUTHENTICATED
 
         self._ping_loop.start(30)
+
 
     def error(self, message):
         """

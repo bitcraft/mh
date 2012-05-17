@@ -1,31 +1,38 @@
+"""
+this provides an abstraction between pygame's inputs and input handling.
+events will be translated into a format that the game will handle.  this
+provides an way to deal with multiple inputs and reconfiguring keys at runtime.
+
+provides a couple nice features:
+    inputs can be reconfigured during runtime, without changing game code
+    inputs can be changed during runtime: want a joystick? no problem
+    input commands keep track of buttons being held as well
+
+When processing the pygame event queue, be sure to check events against the
+processEvent() method.
+"""
+
 from pygame.locals import *
 from buttons import *
 import pygame
 
 
-"""
-this provides an abstraction between pygame's input's and
-input handling.  events will be translated into a format
-that the game will handle.  this provides an way to deal
-with multiple inputs and reconfiguring keys at runtime.
 
-provides a couple nice features:
-    input can be reconfigured during runtime, without chaning game code
-    inputs can be changed during runtime: want a joystick? no problem
-    input commands keep track of buttons being held as well
-"""
-
-
-
-get_pressed = pygame.key.get_pressed
-
-
-class PlayerInput:
-    def getCommand(self, event):
+class PlayerInput(object):
+    def processEvent(self, event):
+        """
+        Determine state by checking a pygame event
+        """
         raise NotImplementedError
 
-    def getHeld(self):
-        pass
+
+    def getState(self):
+        """
+        Return a list of buttons that have been pressed or held since
+        last time input was checked
+        """
+        raise NotImplementedError
+    
 
 
 class KeyboardPlayerInput(PlayerInput):
@@ -55,15 +62,15 @@ class KeyboardPlayerInput(PlayerInput):
         self.held = []
 
 
-    def getHeld(self):
+    def getState(self):
         """
         return a list of keys that are being held down
         """
 
-        return [ (self.__class__, key, BUTTONHELD) for key in self.held ]
+        return [ (self.__class__, key, ) for key in self.held ]
 
     
-    def getCommand(self, event):
+    def processEvent(self, event):
 
         try:
             key = self.keymap[event.key]
@@ -103,6 +110,8 @@ class KeyboardPlayerInput(PlayerInput):
         return self.__class__, key, state
 
 
+    
+
 
 class JoystickPlayerInput(PlayerInput):
     default_p1 = {
@@ -124,7 +133,7 @@ class JoystickPlayerInput(PlayerInput):
         if keymap == None:
             self.keymap = JoystickPlayerInput.default_p1
         
-    def getCommand(self, event):
+    def processEvent(self, event):
         try:
             if event.joy != self.jsNumber: return
         except AttributeError:
