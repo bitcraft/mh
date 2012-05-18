@@ -24,6 +24,13 @@ from Queue import Empty
 import os.path, time
 
 
+from lib2d.client.client import Client
+
+client = Client("leif", "pass", "127.0.0.1", 25565)
+client.login()
+
+
+
 class SubPixelThread(Thread):
     """
     Process a subpixel image in the background.

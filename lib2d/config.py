@@ -1,6 +1,8 @@
 from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
 from os.path import expanduser, expandvars
 
+
+
 class BravoConfigParser(SafeConfigParser):
     """
     Extended ``ConfigParser``.
@@ -61,10 +63,8 @@ def read_configuration():
     configuration = BravoConfigParser()
 
     default_files = [
-        "/etc/bravo/bravo.ini",
-        expanduser("~/.bravo/bravo.ini"),
-        expandvars("%APPDATA%/bravo/bravo.ini"),
-        "bravo.ini",
+        expanduser("~/.lib2d/bravo.ini"),
+        "server.ini",
     ]
 
     configuration.read(default_files)

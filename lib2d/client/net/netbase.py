@@ -1,7 +1,9 @@
 import socket,select,sys,time
 from errors import *
 from communicate import SendData, ReceiveData, ReceiveDataUDP
-    
+
+
+
 class TCPServer():
     def __init__(self):
         self.sending_socket = None
@@ -70,6 +72,7 @@ class TCPServer():
         for s in self.connected_sockets: s.close()
         self.quit_func(self.host,self.port)
 
+
 class UDPServer():
     def __init__(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -108,33 +111,8 @@ class UDPServer():
     def quit(self):
         self.socket.close()
         self.quit_func(self.host,self.port)
-        
-class TCPClient:
-    def __init__(self):
-        pass
-    def connect(self,host,port):
-        self.host = host
-        self.port = port
-        try:
-            self.socket = socket.socket()
-            self.socket.connect((self.host,self.port))
-        except:
-            self.socket.close()
-            raise SocketError("The connection could not be opened.  It must be created first with a server object.")
-        
-    def send_data(self,data,compress=False):
-        SendData(self.socket,data,compress,includelength=True)
-    def wait_for_data(self):
-        input_ready,output_ready,except_ready = select.select([self.socket],[],[])
-        return ReceiveData(self.socket)
-    def check_for_data(self):
-        input_ready,output_ready,except_ready = select.select([self.socket],[],[],0.001)
-        if len(input_ready) > 0:
-            return ReceiveData(self.socket)
-    
-    def quit(self):
-        self.socket.close()
 
+ 
 class UDPClient:
     def __init__(self):
         pass

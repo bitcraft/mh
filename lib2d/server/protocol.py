@@ -1,6 +1,10 @@
 from twisted.internet.protocol import Protocol
+from twisted.internet.task import cooperate, deferLater, LoopingCall
 from twisted.internet import reactor
 from twisted.protocols.policies import TimeoutMixin
+
+from lib2d.common.packets import make_packet, parse_packets
+from lib2d.common.temporal import timestamp_from_clock
 
 # States of the protocol.
 (STATE_UNAUTHENTICATED, STATE_CHALLENGED, STATE_AUTHENTICATED, STATE_LOCATED
@@ -44,6 +48,17 @@ class Lib2dServerProtocol(object, Protocol, TimeoutMixin):
         }
 
         self.setTimeout(30)
+
+        self._ping_loop = LoopingCall(self.update_ping)
+
+
+    def update_ping(self):
+        """
+        Send a keepalive to the client.
+        """
+
+        timestamp = timestamp_from_clock(reactor)
+        self.write_packet("ping", pid=timestamp)
 
 
     def ping(self, container):

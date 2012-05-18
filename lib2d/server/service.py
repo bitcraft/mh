@@ -40,7 +40,7 @@ class Lib2dService(MultiService):
     def configure_services(self):
         for section in self.config.sections():
             if section.startswith("world "):
-                factory = BravoFactory(self.config, section[6:])
+                factory = Lib2dFactory(self.config, section[6:])
                 interfaces = self.config.getlist(section, "interfaces")
 
                 for service in services_for_endpoints(interfaces, factory):

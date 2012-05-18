@@ -7,7 +7,7 @@ from twisted.internet.task import LoopingCall
 
 from lib2d.server.protocol import Lib2dServerProtocol
 
-from packets import makePacket
+from lib2d.common.packets import make_packet
 
 
 
@@ -22,14 +22,14 @@ class Lib2dFactory(Factory):
     timestamp = None
     time = 0
 
-    def __init__(self, name):
+    def __init__(self, config, name):
         """
         Create factory and open a world
         """
 
         self.name = name
+        self.config = config
         self.world = None
-        self.config = None
         self.protocols = dict()
         self.connectedIPs = defaultdict(int)
 

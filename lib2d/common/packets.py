@@ -11,6 +11,15 @@ from construct import BitStruct, BitField
 from construct import StringAdapter, LengthValueAdapter, Sequence
 
 
+DUMP_ALL_PACKETS = 1
+
+# Strings.
+# This one is a UCS2 string, which effectively decodes single writeChar()
+# invocations. We need to import the encoding for it first, though.
+from lib2d.common.encodings import ucs2
+from codecs import register
+register(ucs2)
+
 
 class DoubleAdapter(LengthValueAdapter):
 
@@ -30,10 +39,11 @@ def AlphaString(name):
     )
 
 
+
+
 dimensions = {
     "earth": 0,
     "sky": 1,
-    "nether": 255,
 }
 dimension = Enum(UBInt8("dimension"), **dimensions)
 
@@ -65,15 +75,7 @@ packets = {
     1: Struct("login",
         UBInt32("protocol"),
         AlphaString("username"),
-        SBInt64("seed"),
-        Enum(UBInt32("mode"),
-            survival=0,
-            creative=1,
-        ),
-        dimension,
-        UBInt8("difficulty"),
-        UBInt8("height"),
-        UBInt8("players"),
+        AlphaString("password"),
     ),
     2: Struct("handshake",
         AlphaString("username"),
@@ -141,6 +143,18 @@ packets = {
 
 }
 
+packet_stream = Struct("packet_stream",
+    OptionalGreedyRange(
+        Struct("full_packet",
+            UBInt8("header"),
+            Switch("payload", lambda context: context["header"], packets),
+        ),
+    ),
+    OptionalGreedyRange(
+        UBInt8("leftovers"),
+    ),
+)
+
 packets_by_name = dict((v.name, k) for (k, v) in packets.iteritems())
 
 
@@ -198,7 +212,7 @@ def parse_packets_incrementally(bytestream):
         yield header, payload
 
 
-def makePacket(packet, *args, **kwargs):
+def make_packet(packet, *args, **kwargs):
     """
     Constructs a packet bytestream from a packet header and payload.
 
