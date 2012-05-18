@@ -1,14 +1,17 @@
 this is a ongoing project for some sort of multiplayer adventure game.
 
-a wold of warning, this repository is generally not stable, and may not run.  there is a stable version under the downloads section.
+a word of warning, this repository is generally not stable, and may not run.  there is a stable version under the downloads section that showcases some of the client's features.
+
+
 
 server:
     network support coming soon with twisted integration
     native support for tiled maps
-    supports keyboard and joystick movement
     save game and persistence for all objects
+    supports adventure and platform style games
 
 client:
+    supports keyboard and joystick movement
     scrolling map for large areas
     animated sprites
 
@@ -24,27 +27,14 @@ started during pyweek sept '11, has slowly morphed into something else.
 people interested in the game are more than welcome to fork the game and try
 to make something of it.  i develop the game and library, lib2d, in my spare
 time and sometimes will make huge changes.  that being said, there isn't much
-documentation except for the comments.
-
-the game uses a pickle to save the game.  if you make changes to any class that
-exists in the pickle (area, avatarobject, ...), then you will have to rebuild
-the game pickle.  just run "buildworld.py".  this is also the script that
-generates the starting world.
-
-the guid's set in the pickle match the guid's stored in control.tsx found in
-tilesets.
+documentation except for the comments.  use at your own risk!
 
 
 
 RUNNING:
 
-to play, you will first need to initialize the world pickle.  simply
-run 'buildworld.sh'.  this will create two files for the pickle.
-
-when the pickle is created, run 'run.py' to run the demo.
-
-if you encounter an error and the game will no longer run, rebuild the pickle by running 'buildworld.sh'.
-
+run 'run.py' to run the client.
+the server must also be running, but is not started automatically.
 
 
 HAVE FUN!
