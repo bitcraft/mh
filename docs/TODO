@@ -104,6 +104,9 @@ real-time nature and strategy will have to be a mix of options
 
 should be enough npcs and variety so that poor decisions will not have huge consequences for the player.
 
+no nps:
+	botting, zerging
+
 may require another rewrite with the following kept in mind:
     all objects must be able to be loaded and unladed at any moment
     any change to state should emit a signal, even if nobody wants to listen
@@ -137,4 +140,44 @@ Quadtree:
 	+ Fast collision detection
 	+ Great for static geometry
 	- Slow add/remove of nodes
+
+
+alternative setting: 2300's.
+civilization has been destroyed by biological warfare
+pockets of citizens have basic communities
+proliferation of 'ancient' technologies are in common use:
+	steam engines
+	bi-planes and other simple craft
+	wind/solar/water power
+	locomotives
+knowledge of old ways of life and technology is common, but the number of people is too low to support advanced technology.
+cities are completely uninhabitable, overrun with zombie-like humans
+
+core mechanics:
+	botting/zerging is encouraged
+	economy is open (ala eve online)
+	interface allows for control of multiple characters
+	gameplay is limited by AP, per player (good/bad?)
+	no npcs!
+	game objects can be crafted and manipulated
+
+game structure:
+	players are able to create quests-like conditions for other players
+	this can be hunting type missions, assasinations, bounties, or cash
+	players run stores, inns, and other rpg-like foundations
+
+players are encouraged to settle areas by populating them with characters (alts)
+game is hybrid turn based/real time, like urban dead
+players gain experience to get access to alts
+interface uses a pane of statuses (ala facebook) with options:
+	<player> wants to buy X, etc
+
+alts can be commanded from high level (return to home, give X to X, etc)
+
+
+with enough players, no real aliances are needed
+players have reputation that follows them and is easily found
+no concepts of chat lobbies
+languages can be learned and used
+zerging as a mechanic gives one player a much more broad view of the world
 

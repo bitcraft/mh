@@ -24,10 +24,15 @@ class Node(object):
     def __repr__(self):
         return "<Node: x={} y={}>".format(self.x, self.y)
 
+#def getSurrounding(node):
+#    return ((node.x-1, node.y-1), (node.x, node.y-1), (node.x+1, node.y-1), \
+#            (node.x-1, node.y),   (node.x+1, node.y), \
+#            (node.x-1, node.y+1), (node.x, node.y+1), (node.x+1, node.y+1))
+
 def getSurrounding(node):
-    return ((node.x-1, node.y-1), (node.x, node.y-1), (node.x+1, node.y-1), \
+    return ((node.x, node.y-1), \
             (node.x-1, node.y),   (node.x+1, node.y), \
-            (node.x-1, node.y+1), (node.x, node.y+1), (node.x+1, node.y+1))
+            (node.x, node.y+1))
 
 def dist(start, finish):
     return abs(finish.x - start.x) + abs(finish.y - start.y)
@@ -35,7 +40,7 @@ def dist(start, finish):
 def calcG(node):
     score=0
     score += node.g
-    while not node.parent == None:
+    while node.parent is not None:
         node = node.parent
         score += node.g
     return score
@@ -75,7 +80,7 @@ def search(start, finish, factory):
     while openlist:
         try:
             f, keyNode = heappop(openlist)
-            while keyNode == None:
+            while keyNode is None:
                 f, keyNode = heappop(openlist)
         except IndexError:
             break
@@ -84,7 +89,7 @@ def search(start, finish, factory):
 
         if keyNode == finishNode:
             path = [(keyNode.x, keyNode.y)]
-            while not keyNode.parent == None:
+            while keyNode.parent is not None:
                 keyNode = keyNode.parent
                 path.append((keyNode.x, keyNode.y))
             return path
