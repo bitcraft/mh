@@ -1,1 +1,0 @@
-twistd -ny server.tac
