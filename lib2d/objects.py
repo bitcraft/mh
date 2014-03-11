@@ -1,8 +1,5 @@
 import res
-import pygame, types, os
 
-
-unsupported = [pygame.Surface, types.MethodType]
 
 
 def loadObject(name):
@@ -12,7 +9,10 @@ def loadObject(name):
 
     import cPickle as pickle
 
-    with open(name + "-data.save") as fh:
+    with open(name + "-index.txt") as fh:
+        toc = pickle.load(fh)
+
+    with open(name + "-data.txt") as fh:
         node = pickle.load(fh)
 
     return node
@@ -29,28 +29,18 @@ class GameObject(object):
     difficult to track bugs.
     """
 
-    population = []
-    sounds = []
-    gravity = True
-    pushable = False
-    time_update = False
-
-
     def __init__(self, parent=None):
         self.short_name = str(self.__class__)
-        self.size       = (32, 32, 32)
+        self.short_desc = ""
+        self.long_desc  = ""
+        self.name       = ""
+        self.pushable   = False
+        self.weight     = 1
         self._children  = []
         self._parent    = parent
         self._childrenGUID = []  # children of this object by guid !dont use
         self.guid = None
 
-        if self.time_update:
-            self.population.append(self)
-
-
-    def __repr__(self):
-        return "<{}: \"{}\">".format(self.__class__.__name__, id(self))
-    
 
     def returnNew(self):
         """
@@ -79,17 +69,25 @@ class GameObject(object):
         return new 
 
 
+    def update(self, time):
+        pass
+
+
     def getPosition(self, what=None):
         # override this for objects that can contain other types
-        if what is None: what = self._parent
+        if what == None: what = self._parent
         return self._parent.getPosition(what)
-        #if what is None: what = self
-        #return self._parent.getPosition(what)
+
+
+    def getOrientation(self, what=None):
+        # override this for objects that can contain other types
+        if what == None: what = self._parent
+        return self._parent.getOrientation(what)
 
 
     def getSize(self, what=None):
         # override this for objects that can contain other types
-        if what is None: what = self._parent
+        if what == None: what = self._parent
         return self._parent.getSize(what)
         
 
@@ -106,14 +104,6 @@ class GameObject(object):
         so far, images, sounds
         """
         pass
-
-
-    def loadAll(self):
-        """
-        load this and the children
-        """
-        self.load()
-        [ child.load() for child in self.getChildren() ]
 
 
     def unload(self):
@@ -136,23 +126,13 @@ class GameObject(object):
 
 
     def remove(self, other):
-        try:
-            self._children.remove(other)
-            other._parent = None
-        except ValueError:
-            msg = "Attempting to remove child ({}), but not in parent ({})"
-            raise ValueError, msg.format(other, self)
+        self._children.remove(other)
 
 
     def add(self, other):
         self._children.append(other)
-        try:
-            if other._parent:
-                other._parent.remove(other)
-        except:
-            print 'Error taking {} from parent.  Ignored'.format(other)
-            pass
-
+        if other._parent:
+            other._parent.remove(other)
         other.setParent(self)
 
 
@@ -177,7 +157,7 @@ class GameObject(object):
 
     def getRoot(self):
         node = self
-        while node._parent is not None:
+        while not node._parent == None:
             node = node._parent
         return node
 
@@ -187,22 +167,13 @@ class GameObject(object):
         search the children of this object for an object
         with the matching guid
         """
-      
+       
         guid = int(guid) 
-        if self.guid == guid: return self 
         for child in self.getChildren():
             if child.guid == guid: return child
 
         msg = "GUID ({}) not found."
         raise Exception, msg.format(guid)
-
-
-    def getChildByName(self, name):
-        for child in self.getChildren():
-            if child.name == name: return child
-
-        msg = "Object by name ({}) not found."
-        raise Exception, msg.format(name)
 
 
     def get_flag(self):
@@ -254,20 +225,17 @@ class GameObject(object):
         return self.icon
 
 
-    def destroy(self, parent=None):
+    def destroy(self):
         """
         destroy the object and children.  the object will be removed from the
         game and references cleared.
         """
 
-        name = "DEAD-{}".format(self.name)
-        if self._parent:
-            self._parent.remove(self)
         for child in self._children:
+            child._parent = None
             child.destroy()
+
         self._children = []
-        self.unload()
-        self.name = name
 
 
     def setParent(self, parent):
@@ -284,14 +252,6 @@ class GameObject(object):
         """
 
         import cPickle as pickle
-        import StringIO
-
-        def testRun():
-            for child in self.getChildren():
-                for k, v in child.__dict__.items():
-                    if type(v) in unsupported:
-                        print "Object {} contains unpickleable attribute \"{}\" {} ({})".format(child, k, type(v), v)
-                        raise ValueError
 
         # generate unique ID's for all the objects (if not already assigned)
         i = 0
@@ -304,39 +264,32 @@ class GameObject(object):
             child.setGUID(i)
             used.add(i)
 
-        testRun()
-
         toc = {}
         def handleWrite(obj, pickler):
             toc[obj.guid] = fh.tell()
 
-        with open(name + "-data.temp", "w") as fh:
+        with open(name + "-data.txt", "w") as fh:
             pickler = pickle.Pickler(fh, -1)
             self.serialize(pickler, handleWrite)
 
-        os.rename(name + "-data.temp", name + "-data.save")
+        with open(name + "-index.txt", "w") as fh:
+            pickler = pickle.Pickler(fh, -1)
+            pickler.dump(toc)
 
-        #with open(name + "-index.txt", "w") as fh:
-        #    pickler = pickle.Pickler(fh, -1)
-        #    pickler.dump(toc)
-
-
-class InteractiveObject(GameObject):
-    """
-    object that exists in the game world
-    excludes things like animations and ui elements which are saved, but
-    don't require things like physics simulation
-    """
 
 class AvatarObject(GameObject):
-    def __init__(self, avatar):
+    def __init__(self):
+        GameObject.__init__(self)
+        self._avatar = None
+
+
+    def add(self, other):
         from avatar import Avatar
 
-        GameObject.__init__(self)
+        if isinstance(other, Avatar):
+            self._avatar = other
 
-        if isinstance(avatar, Avatar):
-            self.add(avatar)
-            self._avatar = avatar
+        GameObject.add(self, other)
 
 
     @property    
@@ -344,6 +297,16 @@ class AvatarObject(GameObject):
         return self._avatar
 
 
-class InteractiveObject(AvatarObject):
-    def use(self, user=None):
+    @avatar.setter
+    def avatar(self, avatar):
+        self._avatar = avatar
+        self.add(avatar)
+
+
+    def setAvatar(self, avatar):
+        self._avatar = avatar
+        self.add(avatar)
+
+    
+    def stop(self):
         pass

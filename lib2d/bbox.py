@@ -1,7 +1,3 @@
-import collections, itertools
-
-
-
 def intersect(a, b):
     return (((a.back   >= b.back   and a.back   < b.front)   or
              (b.back   >= a.back   and b.back   < a.front))  and
@@ -12,19 +8,70 @@ def intersect(a, b):
 
 # BUG: collisions on right side are not correct
 
+#def intersect(a, b):
+#    return not (b.back > a.front or b.front < a.back or
+#                b.left > a.right or b.right < a.left or
+#                b.bottom > a.top or b.top < a.bottom)
 
-class BBox(list):
+class BBox(object):
     """
     Rect-like class for defining area in 3d space.
-    subclassed from list to provide fast index access
 
-    Not hashable.
-
-    Many of the methods here have not been extensively tested, but most should
-    work as expected.
+    Once created cannot be modified.  Hashable.
     """
 
-    __slots__ = []
+    __slots__ = ['_x', '_y', '_z', '_w', '_h', '_d']
+
+    def __init__(self, *arg):
+        """
+        should accept rect like object or tuple of two tuples or one tuple
+        of four numbers, store :x,y,h,w
+        """
+
+        # hack!!!
+        if len(arg) == 1:
+            arg = arg[0]
+
+        if isinstance(arg, BBox):
+            self._x, self._y, self._z, self._w, self._h, self._d = arg
+        elif isinstance(arg, list) or isinstance(arg, tuple):
+            if len(arg) == 2:
+                self._x, self._y, self._z = arg[0]
+                self._w, self._h, self._d = arg[1]
+            elif len(arg) == 6:
+                self._x, self._y, self._z, self._w, self._h, self._d = arg
+        elif hasattr(arg, 'bbox'):
+            self._x, self._y, self._z, self._w, self._h, self._d = arg.bbox
+        else:
+            try:
+                self._x, self._y, self._z, self._w, self._h, self._d = arg
+            except:
+                raise ValueError, arg
+
+
+    def __repr__(self):
+        return "<bbox: {} {} {} {} {} {}>".format(
+            self._x, self._y, self._z, self._w, self._h, self._d)
+
+ 
+    def __len__(self): return 6
+
+
+    def __getitem__(self, key):
+
+        if key == 0:
+            return self._x
+        elif key == 1:
+            return self._y
+        elif key == 2:
+            return self._z
+        elif key == 3:
+            return self._w
+        elif key == 4:
+            return self._h
+        elif key == 5:
+            return self._d
+        raise IndexError, key
 
 
     def copy(self):
@@ -32,27 +79,13 @@ class BBox(list):
 
 
     def move(self, x, y, z):
-        self[0] += x
-        self[1] += y
-        self[2] += z
+        return BBox(self._x + x, self._y + y, self._z + z,
+                      self._w,     self._h,     self._d)
 
 
-    def inflate(self, x, y, z):
-        self[0] -= x / 2
-        self[1] -= y / 2
-        self[2] -= z / 2
-        self[3] += x
-        self[4] += y
-        self[5] += z
-
-
-    def scale(self, x, y, z):
-        self[0] *= x
-        self[1] *= y
-        self[2] *= z
-        self[3] *= x
-        self[4] *= y
-        self[5] *= z
+    def inflate(self, x, y):
+        return Rect((self._x - x / 2, self._y - y / 2, self._z - z /2,
+                     self._w + x,     self._h + y,     self._d + z))
 
 
     def clamp(self):
@@ -64,53 +97,54 @@ class BBox(list):
 
 
     def union(self, other):
-        raise NotImplementedError
+        return Rect((min(self._x, other.left), min(self._y, other.top),
+                     max(self._w, other.right), max(self._h, other.height)))
 
  
     def unionall(self, *rects):
-        raise NotImplementedError
+        rects.append(self)
+        front  = min([ r.front for r in rects ])
+        left   = min([ r.left for r in rects ])
+        bottom = min([ r.bottom for r in rects ])
+        back   = max([ r.back for r in rects ]) 
+        right  = max([ r.right for r in rects ])
+        top    = max([ r.top for r in rects ])
+        return Rect(front, left, bottom, depth, width, height)
 
 
     def fit(self):
         raise NotImplementedError
 
 
-    def normalized(self):
-        """
-        return a normalized bbox of this one
-        """
-        x, y, z, d, w, h = self
-        if d < 0:
-            x += d
-            d = -d
-        if w < 0:
-            y += w
-            w = -w
-        if h < 0:
-            z += h
-            h = -h
-        return BBox(x, y, z, d, w, h)
+    def normalize(self):
+        if self._w < 0:
+            self._x += self._w
+            self._w = -self._x
+        if self._h < 0:
+            self._y += self._h
+            self._h = -self._y
+        if self._d < 0:
+            self._z += self._d
+            self._d = -self._y
 
 
     def contains(self, other):
-        raise NotImplementedError
         other = BBox(other)
-        # this is not correct!
-        return ((self[0] <= other.back) and
-                (self[1] <= other.top) and
-                (self[2] <= other.front) and
-                (self[0] + self[4] >= other.right) and
-                (self[1] + self[5] >= other.bottom) and
-                (self[2] + self[3] >= other.back) and
-                (self[0] + self[4] > other.left) and
-                (self[1] + self[5] > other.top) and
-                (self[2] + self[3] > other.front))
+        return ((self._x <= other.left) and
+                (self._y <= other.top) and
+                (self._z <= other.front) and
+                (self._x + self._w >= other.right) and
+                (self._y + self._h >= other.bottom) and
+                (self._z + self._d >= other.back) and
+                (self._x + self._w > other.left) and
+                (self._y + self._h > other.top) and
+                (self._z + self._d > other.front))
 
 
     def collidepoint(self, (x, y, z)):
-        return (x >= self[0] and x < self[0] + self[3] and 
-                y >= self[1] and y < self[1] + self[4] and
-                z >= self[2] and z < self[2] + self[5])
+        return (x >= self._x and x < self._x + self._w and 
+                y >= self._y and y < self._y + self._h and
+                z >= self._z and z < self._z + self._z)
 
 
     def collidebbox(self, other):
@@ -120,6 +154,7 @@ class BBox(list):
     def collidelist(self, l):
         for i, bbox in enumerate(l):
             if intersect(self, bbox):
+                print i, bbox
                 return i
         return -1
 
@@ -139,84 +174,74 @@ class BBox(list):
 
     @property
     def back(self):
-        return self[0]
+        return self._x
 
 
     @property
     def left(self):
-        return self[1]
+        return self._y
 
 
     @property
     def bottom(self):
-        return self[2]
+        return self._z
 
 
     @property
     def front(self):
-        return self[0] + self[3]
+        return self._x + self._d
 
 
     @property
     def right(self):
-        return self[1] + self[4]
+        return self._y + self._w
 
 
     @property
     def top(self):
-        return self[2] + self[5]
+        return self._z + self._h
 
 
     @property
     def size(self):
-        return self[3], self[4], self[5]
+        return self._d, self._w, self._h
 
 
     @property
     def origin(self):
-        return self[0], self[1], self[2]
+        return self._x, self._y, self._z
 
 
     @property
     def bottomcenter(self):
-        return self[0]+self[3]/2, self[1]+self[4]/2, self[2]
-
-
-    @property
-    def topcenter(self):
-        return self[0]+self[3]/2, self[1]+self[4]/2, self[2]+self[5]
-
-
-    @property
-    def center(self):
-        return self[0]+self[3]/2, self[1]+self[4]/2, self[2]+self[5]/2
-
-
-    @property
-    def x(self):
-        return self[0]
-
-
-    @property
-    def y(self):
-        return self[1]
-
-
-    @property
-    def z(self):
-        return self[2]
-
-
-    @property
-    def depth(self):
-        return self[3]
+        return self._x + self._d / 2, self._y + self._w /2, self._z
 
 
     @property
     def width(self):
-        return self[4]
+        return self._w
 
 
     @property
     def height(self):
-        return self[5]
+        return self._h
+
+
+    @property
+    def depth(self):
+        return self._d
+
+
+    @property
+    def x(self):
+        return self._x
+
+
+    @property
+    def y(self):
+        return self._y
+
+
+    @property
+    def z(self):
+        return self._z

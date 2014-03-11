@@ -11,7 +11,6 @@ probably better solutions for moving objects.
 
 
 from pygame import Rect
-import itertools
 
 
 class FrozenRect(object):
@@ -158,9 +157,6 @@ class FastQuadTree(object):
         if sw_items:
             self.sw = FastQuadTree(sw_items, depth, \
                       (bounding_rect.left, cy, cx, bounding_rect.bottom))
-
-    def __iter__(self):
-        return itertools.chain(self.items, self.nw, self.ne, self.se, self.sw)
 
 
     def hit(self, rect):

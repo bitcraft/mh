@@ -26,31 +26,21 @@ simple:
 """
 
 import pygame
-import sys, os.path
+import os.path
 
 
-DEBUG = True
+DEBUG = False
 
 def debug(text):
     if DEBUG: sys.stdout.write(text)
 
 
-class Settings(object):
-    pass
-
-
-
-defaults = Settings()
-
-
-defaults.colorkey = False
 
 
 _resPath = "resources"
 _defaultFont = None
 
 
-global_colorkey = (48, 47, 46)
 
 class NoSound:
     def play(self): pass
@@ -68,7 +58,7 @@ def setResourcePath(path):
 def defaultFont():
     global _defaultFont
 
-    if _defaultFont is None:
+    if _defaultFont == None:
         _defaultFont = pygame.font.get_default_font()
 
     return _defaultFont
@@ -89,7 +79,7 @@ def imagePath(filename):
     return os.path.join(_resPath, "images", filename)
     
 
-def loadImage(name, alpha=False, colorkey=False, fake=False):
+def loadImage(name, alpha=False, colorkey=False):
     fullpath = imagePath(name)
 
     try:
@@ -99,33 +89,18 @@ def loadImage(name, alpha=False, colorkey=False, fake=False):
         msg = "Cannot load image: {}"
         raise Exception, msg.format(fullpath)
 
-    if alpha or fake:
+    if alpha:
         image = image.convert_alpha()
-
-    if fake:
-        s = pygame.Surface(image.get_size())
-        s.fill(global_colorkey)
-        s.blit(image, (0,0))
-        s.set_colorkey(global_colorkey, pygame.RLEACCEL)
-        return s 
 
     elif colorkey:
         image = image.convert()
         image.set_colorkey(image.get_at((0,0)), pygame.RLEACCEL)
+
     else:
         image = image.convert()
 
 
     return image
-
-
-def loadTile(filename, tileSize, pos):
-    image = loadImage(filename)
-    surface = pygame.Surface(tileSize)
-    surface.blit(image, (0,0),
-                ((pos[0] * tileSize[0], pos[1] * tileSize[1]), tileSize))
-    return surface
-
 
 def soundPath(filename):
     return os.path.join(_resPath, "sounds", filename)
@@ -158,7 +133,7 @@ def playMusic(filename, *args, **kwargs):
     stopMusic()
     fullpath = musicPath(filename)
     pygame.mixer.music.load(fullpath)
-    pygame.mixer.music.play(kwargs.get("loops", -1), kwargs.get("start", 0.0))
+    pygame.mixer.music.play(kwargs.get("loops", -1))
 
 
 def stopMusic():

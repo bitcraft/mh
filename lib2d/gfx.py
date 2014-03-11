@@ -24,13 +24,13 @@ from pygame.transform import scale, scale2x
 from pygame.display import flip
 import pygame, os.path, pprint
 
+
+
 """
 a few utilities for making retro looking games by scaling the screen
 and providing a few functions for handling screen changes
 
 """
-
-threaded = 0
 
 DEBUG = False
 
@@ -47,32 +47,15 @@ screen_surface = None
 update_display = None
 double_buffer = False
 hwsurface = False
-#surface_flags = pygame.FULLSCREEN
 surface_flags = 0
-#surface_flags = pygame.RESIZABLE
 
-
-import threading
-import Queue
-class ScalingThread(threading.Thread):
-    def __init__(self, func, arg):
-        super(ScalingThread, self).__init__()
-        self.func = func
-        self.arg = arg
-        self.trigger = False
-        self.running = True
-
-    def run(self):
-        while self.running:
-            while not self.trigger:
-                pass
-            self.func(self.arg)
 
 
 def hardware_checks():
     """
     TODO: Do some tests to see if we can reliably use hardware sprites
     """
+
     pass
 
 
@@ -80,7 +63,7 @@ def init():
     global screen_dim
 
     # determine if we can use hardware accelerated surfaces or not
-    pygame.display.set_caption("robots!")
+    pygame.display.set_caption("RPG World Test")
 
 # is it redundant to have a pygame buffer, and one for pixalization?  maybe...
 
@@ -92,10 +75,6 @@ def update_display_scaled(dirty):
     scale(screen, screen_dim, screen_surface)
     flip()
 
-def update_display_threaded(dirty):
-    global thread
-    thread.trigger = True
-
 def set_screen(dim, scale=1, transform=None):
 
     global pixelize, pix_scale, buffer_dim, screen, update_display, screen_surface, screen_dim
@@ -105,19 +84,19 @@ def set_screen(dim, scale=1, transform=None):
     if transform == "scale2x" or transform == "scale":
         set_scale(scale, transform)
 
-    elif transform is None:
+    elif transform == None:
         pixelize = False
         pixel_buffer = None
         pix_scale = 1
         buffer_dim = None
-        update_display = pygame.display.update
+        update_display = flip
         screen_surface = pygame.display.set_mode(screen_dim, surface_flags)
         screen = screen_surface
 
 def set_scale(scale, transform="scale"):
     from pygame.surface import Surface
 
-    global pixelize, pix_scale, buffer_dim, screen, update_display, screen_surface, screen_dim, thread
+    global pixelize, pix_scale, buffer_dim, screen, update_display, screen_surface, screen_dim
 
     if transform == "scale2x":
         pix_scale = 2
@@ -126,20 +105,9 @@ def set_scale(scale, transform="scale"):
         pix_scale = scale
         update_display = update_display_scaled
 
-
-    if threaded:
-        update_func = update_display
-        thread = ScalingThread(update_display_scaled, None)
-        update_display = update_display_threaded
-        thread.start()
-
-
     pixelize = True
     buffer_dim = tuple([ int(i / pix_scale) for i in screen_dim ])
     screen_surface = pygame.display.set_mode(screen_dim, surface_flags)
     screen = Surface(buffer_dim, surface_flags)
     #screen_surface = pygame.display.set_mode(screen_dim)
 
-
-def get_rect():
-    return pygame.Rect((0,0), buffer_dim)

@@ -1,12 +1,13 @@
 """
-Copyright 2009, 2010, 2011 Leif Theden
+Copyright 2010, 2011  Leif Theden
+
 
 This file is part of lib2d.
 
-lib2d is free software: you can redistribute it
-and/or modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation, either version 3 of
-the License, or (at your option) any later version.
+lib2d is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
 lib2d is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,7 +24,7 @@ modified state machine.  controls player input
 output an animation if input is valid
 
 usage:
-    add states and transitions
+	add states and transitions
 
 when input is recv'd, call process with the input
 
@@ -39,155 +40,336 @@ w/avatar.  just check it as needed.
 state = (animation object, current frame)
 """
 
-from lib2d.buttons import *
-from collections import deque
+import sys
 
+DEBUG = True
+
+def debug(text):
+	if DEBUG: sys.stdout.write(text)
+
+
+
+STICKY = 1
+
+ANIMATION_CHANGE_TOKEN = 0
+HOLD_TOKEN = 1
+UNHOLD_TOKEN = 2
+
+from time import time as ms
+from collections import deque
+from pygame.locals import *
+
+import cPickle as pickle
 
 # only have one child, an avatar.
-class fsa(object):
-    """
-    Somewhat like a finite state machine.
+class FSA(object):
+	def __init__(self, avatar):
+		self.avatar = avatar		# avatar we are attached to
+		self.combos = {}			# input combos
+		self.holds = {}			# keep track of state changes from holds
+		self.hold = 0				# keep track of buttons held down
+		self.state_transitions=deque() # conditions for changing animations
+		avatar.set_fsa(self)
+		self.locked = False
 
-    """
+		# for combos
+		self.move_history = []
 
-    def __init__(self, entity):
-        self.entity = entity
-        self.combos = {}
-        self.button_combos = []
-        self.state_transitions = {}
+	def reset(self):
+		print "RESET"
+		self.locked = False
+		self.holds = {}
+		self.hold =  0
+		self.move_history = []
 
-        self.move_history = []
-        self.button_history = []
-        self.time = 0
-        self.holds = {}                 # keep track of state changes from holds
+	def lock(self):
+		self.locked = True
+		print self, "lock"
+		
+	def unlock(self):
+		self.locked = False
+		print self, "unlock"
 
-        self.stack = []
+	def check_hold(self, state):
+		""" avatar wants to change the animation (usually just the frame,
+		we have the option of overriding it here.
+		return a animation if override is to be used used for recording
+		move (animation) history as well.
+		no real need to update every frame...yet
 
+		more like a request than a statement... "please, can i change state"?
 
-    def program(self):
-        pass
+		return:
+			False: Not holding
+			True:	 Holding, don't change the state
+		"""
 
-    def primestack(self):
-        pass
+		anim, frame_no = state
 
+		# DON'T CHANGE THIS!!!
+		if self.hold == 0:
+			return False
+		else:
+			for cmd, a in self.holds.items():
+				print "check:", self.hold, cmd, a, anim, self.hold & cmd
+				if ((self.hold & cmd) == cmd) and (a == anim):			
+					debug("DENY state change req. %s %s\n" % (state, self.hold))
+					return True
 
-    def reset(self):
-        self.time = 0
-        self.stack = []
-        self.holds = {}
-        self.move_history = []
+			debug("OK state change req. %s %s\n" % (state, self.hold))
+			return False
 
+	def set_anim(self, anim):
+		if anim.name == "idle":
+			""" avatar wants to idle, but lets make sure player isn't holding
+			down any keys first.
+			"""
+			self.move_history = []
+		else:
+			self.move_history.append(anim)
 
-    # sticky means the avartar should finish the previous animation
-    # used for stances, (crouch to sweep, block to punch, etc)
-    def add_transition(self, trigger0, state0, state1, trigger1=None):
-        """
-        add new "transition".
-        """
+	# sticky means the avartar should finish the previous animation
+	# when new one finishes
+	# used for stances, (crouch to sweep, block to punch, etc)
+	def add_transition(self, cmd, state1, state2, frame2=0, frame1=-1, flags=0):
+		"""
+		add new "transition".
 
-        self.state_transitions[(trigger0, state0)] = (state1, trigger1)
-    at = add_transition
+		these are basically just new states with a condition
+		"""
 
+		# store the tranistions as objects, not strings
+		try:
+			state1 = ( self.avatar.get_animation(state1), frame1 )
+			state2 = ( self.avatar.get_animation(state2), frame2 )
+		except KeyError:
+			print "Error while setting up fighter."
+			print "Animation does not exist."
+			raise
 
-    def add_button_combo(self, animation, timeout, *buttons):
-        """
-        add a new button combo.
+		# index:  0      1       2       3
+		t =      (cmd, state1, state2, flags)
+		self.state_transitions.append(t)
 
-        button combos are executed when a series of buttons are pressed quickly.
-        timeout specifies a limit on the time allowed between each button press
-        """
+	def add_combo(self, animation, *combo):
+		"""
+		add a new combo.
 
-        pass
+		a combo is a list of animations.  if it matches the command history,
+		then execute another animation.
+		"""
 
+		# bug: we should raise if a duplicate combo is attempted to be added
 
-    def add_combo(self, animation, *combo):
-        """
-        add a new animation combo.
+		# create a temp ref for speed
+		getter = self.avatar.get_animation
 
-        a combo is a list of animations.  if it matches the command history,
-        then execute another animation.
+		# make a list of animation objects for the list of names
+		cooked = tuple([ getter(a) for a in combo ])
 
-        command history is cleared each time the fighter idles, so it is safe
-        to assume that the command sequence starts from an idle
-        """
+		# store it in our lookup hash thingy
+		self.combos[cooked] = (getter(animation), 0)
 
-        pass
+	def set_default_transition(self, t):
+		pass
 
+	def get_transition(self, cmd, state):
+		if self.locked:
+			return False
 
-    def set_default_transition(self, t):
-        pass
+		# return a state if possible
+		#print "===================================================="
+		for t in self.state_transitions:
+			#print t
+			t_frame = t[1][1]
+			if (t[0] & cmd == cmd) and (t[1][0] == state[0]):
+				if (t_frame == state[1]) or (t_frame == -1):
+					return t
+		return False
 
+	def process(self, cmd, pressed):
+		state = self.avatar.state
 
-    def get_transition(self, trigger, state):
-        if state == None:
-            raise Exception
+		print "keys:", cmd, self.hold, pressed
 
-        else:
-            try:
-                return self.state_transitions[(trigger, state)]
-            except KeyError:
-                return None
+		if pressed:
+			self.hold += cmd
+			state = self.check_change(cmd, state)
 
+			# this key caused a state change.  let's remember that
+			if state != False:
+				self.holds[cmd] = state[0]
 
-    def eject(self, cls):
-        """
-        remove any instances of cls in the stack
-        """
-        to_remove = [i for i in self.stack if isinstance(i, cls)]
-        [self.stack.remove(i) for i in to_remove]
-   
- 
-    def change_state(self, state, cmd=None):
-        old_state = None
-        if len(self.stack) > 0:
-            if not self.stack[-1].flags & STICKY == STICKY:
-                old_state = self.stack.pop()
+			return state
 
-        new_state = state(self, self.entity)
+		else:
+			# sanity, i guess
+			if self.hold & cmd == cmd:
+				old_hold = self.hold
+				self.hold -= cmd
 
-        [self.eject(unworthy) for unworthy in new_state.forbidden]
+				debug("KEYUP %s %s %s\n" % (cmd, self.hold, old_hold))
 
-        self.stack.append(new_state)
-        new_state.enter(cmd)
+				# sometimes fails, not sure why
+				try:
+					del self.holds[cmd]
+				except KeyError:
+					pass
 
-        if old_state:
-            old_state.exit(cmd)
+				# still holding a key
+				if self.hold != 0:
+					print "holding..."
+					print self.hold, state
+					t = self.get_transition(self.hold, state)
+					if t != False:
+						debug("hold: %s\n" % self.hold)
+						if t[3] & STICKY == STICKY:
+							print "stick!", t[2]
+							return t[2]
 
+		return False
 
-    def process(self, trigger):
-        cls, cmd, arg = trigger
+	# see if this event will change our state, return animation if true
+	def check_change(self, cmd, state):
+		t = self.get_transition(cmd, state)
+		if not t:
+			# the input isn't valid
+			return False
 
-        state=self.get_transition((cmd, arg), self.stack[-1].__class__)
-        if not state == None:
-            self.change_state(state[0], (cmd, arg))
-            if not state[1] == None:
-                self.holds[state[1]] = (self.stack[-1], state, (cmd, arg))
+		else:
+			# input is valid, check if it makes a combo
+			return self.get_combo(t[2])
 
-        try:
-            del self.holds[(cmd, arg)]
-        except:
-            pass
+	def get_combo(self, state):
+		# return a combo if it exists, otherwise return the original state
 
+		# we need a temp tuple to check if a combo has been entered
+		# don't set move_history b/c the avatar will do it (self.set_state)
+		temp = self.move_history[:]
+		temp.append(state[0])
 
-    @property
-    def current_state(self):
-        return self.stack[-1]
+		#print "history: ", temp
 
+		# check for a combo
+		try:
+			new_state = self.combos[tuple(temp)]
+			self.move_history = []
+			return new_state
 
-    def update(self, time):
-        self.time += time
-        [ i.update(time) for i in self.stack ]
+		except KeyError:
+			return state
 
-        ok = True
-        for trigger, candidate_state in self.holds.items():
-            if candidate_state[0].__class__ in [i.__class__ for i in self.stack]:
-                ok = False
-                break
+	def update(self, time):
+		pass
 
-            for running_state in self.stack:
-                if candidate_state[0].__class__ in running_state.forbidden:
-                    ok = False
-                    break
+class LoggingFSA(FSA):
+	def __init__(self, avatar):
+		self.log = deque()
+		self.timer = None
+		self.record = False
+		self.playing = False
+		self.virtual_hold = False
+		super(LoggingFSA, self).__init__(avatar)
 
-            if ok:
-                self.change_state(candidate_state[1][0], candidate_state[2])
+	def check_hold(self, state):
+		hold = super(LoggingFSA, self).check_hold(state)
+
+		if self.record:
+			#if hold == True and self.virtual_hold == False:
+            if hold and not self.virtual_hold:
+					self.virtual_hold = True
+					self.log.append((self.get_time(), HOLD_TOKEN))
+
+			#if hold == False and self.virtual_hold == True:
+            if not hold and self.virtual_hold:
+					self.virtual_hold = False
+					self.log.append((self.get_time(), UNHOLD_TOKEN))
+
+		if self.playing:
+			return self.virtual_hold
+		else:
+			return hold
+
+	def update(self, time):
+		if self.playing:
+			try:
+				t = self.log[0][0]
+			except:
+				self.stop_playing()
+				return
+
+			if t <= self.get_time():
+				f = self.log.popleft()
+				self.handle_frame(f)
+
+	def handle_frame(self, frame):
+		# this will fail if there is a token in the que
+		kind = frame[1]
+		if kind == ANIMATION_CHANGE_TOKEN:
+			self.avatar.play(*frame[2])
+
+		elif kind == HOLD_TOKEN:
+			self.virtual_hold = True
+
+		elif kind == UNHOLD_TOKEN:
+			self.virtual_hold = False
+
+		#debug("frame: %s\n" % frame)
+
+	def start_playing(self):
+		debug("playing %s\n" % self.log)
+		if len(self.log) > 0:
+			self.stop_recording()
+			self.playing = True
+			self.reset_time()
+
+	def stop_playing(self):
+		self.playing = False
+
+	def start_recording(self):
+		self.log = deque()
+		self.stop_playing()
+		self.reset_time()
+		self.record = True
+
+	# not a true pause
+	def pause_recording(self):
+		self.record = False
+
+	# not a true stop
+	def stop_recording(self):
+		self.record = False
+
+	def get_time(self):
+		return time() - self.timer
+
+	def reset_time(self):
+		self.timer = ms()
+
+	# doesn't take into effect keyholds.
+	def process(self, cmd, pressed):
+		if self.playing == False:
+			state = super(LoggingFSA, self).process(cmd, pressed)
+
+			#if self.record and state != False:
+			#	self.log.append((self.get_time(), ANIMATION_CHANGE_TOKEN, state))
+
+			return state
+
+		return False
+
+	def save(self, filename=None):
+		if filename == None:
+			filename = "fighter1.sav"
+
+		fh = open(filename, "w")
+
+		pickle.dump(self.log, fh)
+
+	def load(self, filename=None):
+		if filename == None:
+			filename = "fighter1.sav"
+
+		fh = open(filename)
+
+		self.log = pickle.load(fh)

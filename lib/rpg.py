@@ -1,5 +1,5 @@
-from lib2d.common.objects import AvatarObject
-from lib2d.client.buttons import *
+from lib2d.objects import AvatarObject
+from lib2d.buttons import *
 from conditions import *
 from math import cos, sin, degrees
 

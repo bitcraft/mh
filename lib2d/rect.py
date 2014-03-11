@@ -7,7 +7,7 @@ def intersect(r1, r2):
 
 class Rect(object):
     """
-    Pure Python Immutable Rect class that follows the PyGame API.
+    Pure Python Rect class that follows the PyGame API
 
     GIANT WARNING: This is completely in python and will be much slower than
                    PyGame's built in Rect class.  This rect should be used only

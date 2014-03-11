@@ -4,10 +4,8 @@ rewrite of the tilmap engine for lib2d.
 this time has tiled TMX maps built in and required
 """
 
-from objects import GameObject
 import pygame
 from itertools import product, chain, ifilter
-from pytmx import tmxloader
 
 
 # this image will be used when a tile cannot be loaded
@@ -17,19 +15,15 @@ def generateDefaultImage(size):
     i.set_alpha(128)
     return i
 
-def overlappingTiles(rect, layers):
-    layers = xrange(layers)
-    tiles = ( getTile((x/tw + left, y/th + top, l)) for l in layers )
 
-
-class BufferedTilemapRenderer(GameObject):
+class BufferedTilemapRenderer(object):
     """
     Class to render a map onto a buffer that is suitable for blitting onto
     the screen as one surface, rather than a collection of tiles.
 
     The class supports differed rendering and multiple layers
 
-    Jitter is unavoidable because python's interpreter is not time sensitive
+    Jitter is unavoidable becuase python's interpreter is not time sensitive
     and will sometimes just slow everything down.
 
     This class works well for maps that operate on a small display and where
@@ -37,17 +31,13 @@ class BufferedTilemapRenderer(GameObject):
 
     For differed rendering to work, you will need to call update() often.
 
-    Sprites and layers are supported and is quickly managed with a quadtree.
-
     The original library for this, Lib2d updates 4 times for every draw.  To
     take advantage of the processing done inbetween screen updates, update()
     will blit any tiles needed to the offscreen buffer.
     """
 
-    time_update = True
-
     def __init__(self, tmx, size, **kwargs):
-        GameObject.__init__(self)
+        import tmxloader
 
         self.default_image = generateDefaultImage((tmx.tilewidth,
                                                    tmx.tileheight))
@@ -63,7 +53,6 @@ class BufferedTilemapRenderer(GameObject):
 
         import quadtree
 
-        """
         left, self.xoffset = divmod(size[0] / 2, self.tmx.tilewidth)
         top,  self.yoffset = divmod(size[1] / 2, self.tmx.tileheight)
 
@@ -72,17 +61,6 @@ class BufferedTilemapRenderer(GameObject):
 
         self.oldX = self.xoffset + (left * self.tmx.tilewidth) 
         self.oldY = self.yoffset + (top  * self.tmx.tileheight)
-
-        """
-        left = 0
-        top = 0
-        self.xoffset = 0
-        self.yoffset = 0
-        self.oldX = 0
-        self.oldY = 0
-
-        self.view = pygame.Rect(left,top, (size[0] / self.tmx.tilewidth), 
-                               (size[1] / self.tmx.tileheight))
 
         self.bufferWidth  = size[0] + self.tmx.tilewidth * 2
         self.bufferHeight = size[1] + self.tmx.tileheight * 2
@@ -107,7 +85,6 @@ class BufferedTilemapRenderer(GameObject):
             rects.append(rect)
         self.layerQuadtree = quadtree.FastQuadTree(rects, 4)
 
-        self.idle = False
         self.blank = True 
         self.queue = None
 
@@ -115,10 +92,6 @@ class BufferedTilemapRenderer(GameObject):
     def center(self, (x, y)):
         """
         center the map on a pixel
-        pixel coordinates have the origin on the upper-left corner
-
-        TODO: rewrite the tilemap to follow standard 'right handed' cartesian
-        point system.
 
         opt: ok
         """
@@ -126,10 +99,7 @@ class BufferedTilemapRenderer(GameObject):
         x, y = int(x), int(y)
 
         if (self.oldX == x) and (self.oldY == y):
-            self.idle = True
             return
-
-        self.idle = False
 
         # calc the new postion in tiles and offset
         left, self.xoffset = divmod(x-self.halfWidth,  self.tmx.tilewidth)
@@ -225,24 +195,29 @@ class BufferedTilemapRenderer(GameObject):
 
         if surface:
             for i, t in enumerate(self.tilemap.images):
-                if t: self.tilemap.images[i] = t.convert(surface)
+                if not t == 0: self.tilemap.images[i] = t.convert(surface)
             self.buffer = self.buffer.convert(surface)
 
         elif depth or flags:
             for i, t in enumerate(self.tilemap.images):
-                if t:
+                if not t == 0:
                     self.tilemap.images[i] = t.convert(depth, flags)
             self.buffer = self.buffer.convert(depth, flags)
 
 
     def queueEdgeTiles(self, (x, y)):
         """
-        add the tiles on the edge that need to be redrawn to the queue.
-        uses a iterator for the queue
+        add the tiles on the edge that need to be redrawn to the queue also,
+        for colorkey layers, we will fill the new edge with the colorkey color
+        here
+
+        uses a standard python list for the queue
         override if you want a different type of queue
+
+        for internal use only
         """
 
-        if self.queue is None:
+        if self.queue == None:
             self.queue = iter([])
 
 
@@ -275,12 +250,12 @@ class BufferedTilemapRenderer(GameObject):
             self.queue = chain(p, self.queue)
 
 
-    def update(self, time=None):
+    def update(self, time):
         """
         the drawing operations and management of the buffer is handled here.
         if you notice that the tiles are being drawn while the screen
         is scrolling, you will need to adjust the number of tiles that are
-        bilt per update or increase update frequency.
+        bilt per update.
         """
 
         if self.queue:
@@ -299,22 +274,24 @@ class BufferedTilemapRenderer(GameObject):
                     break
 
                 image = getTile((x, y, l))
-                if image:
+                if not image == 0:
                     bufblit(image, (x * tw - ltw, y * th - tth))
 
 
-    def draw(self, surface, rect, surfaces=[]):
+    def draw(self, surface, surfaces=[], origin=(0,0)):
         """
         draw the map onto a surface.
     
         surfaces may optionally be passed that will be blited onto the surface.
         this must be a list of tuples containing a layer number, image, and
-        rect in screen coordinates.  surfaces will be drawn in order passed,
+        rect in screen coordinates.  surfaces will be drawn in oder passed,
         and will be correctly drawn with tiles from a higher layer overlap
         the surface.
 
         passing a list here will correctly draw the surfaces to create the
         illusion of depth.
+
+        TODO: make sure the soccrect rects are returned for dirty updates
         """
 
         if self.blank:
@@ -324,19 +301,15 @@ class BufferedTilemapRenderer(GameObject):
         surblit = surface.blit
         left, top = self.view.topleft
         ox, oy = self.xoffset, self.yoffset
-        ox -= rect.left
-        oy -= rect.top
+        ox -= origin[0]
+        oy -= origin[1]
         getTile = self.getTileImage
 
-        # set clipping.  need to do this, otherwise the map will draw outside
-        # its defined area.
+        # set clipping
         origClip = surface.get_clip()
-        surface.set_clip(rect)
+        drawArea = (origin, self.size)
+        surface.set_clip(drawArea)
 
-        if self.queue:
-            self.flushQueue()
-
-        # draw the entire map to the surface
         surblit(self.buffer, (-ox, -oy))
 
         # TODO: make sure to filter out surfaces outside the screen
@@ -353,19 +326,25 @@ class BufferedTilemapRenderer(GameObject):
             dirtyRect = dirtyRect.move(ox, oy)
             for r in self.layerQuadtree.hit(dirtyRect):
                 x, y, tw, th = r
-                layers = xrange(layer+1, len(self.tmx.visibleTileLayers))
-                for l in layers: 
+                if dirtyRect.bottom < y+th:
+                    # create illusion of depth by sorting images and
+                    # tiles that are on the same layer.  if the image is
+                    # lower than the tile, don't reblit the tile
+                    tile = getTile((x/tw + left, y/th + top, layer))
+                    if not tile == 0:
+                        surblit(tile, (x-ox, y-oy))
+
+                for l in range(layer+1,len(self.tmx.visibleTileLayers)):
+                    # there is a collision between a tile and a image, so
+                    # we simply reblit the affected tiles over the sprite
                     tile = getTile((x/tw + left, y/th + top, l))
-                    if tile:
+                    if not tile == 0:
                         surblit(tile, (x-ox, y-oy))
 
         # restore clipping area
         surface.set_clip(origClip)
 
-        if self.idle:
-            return [ i[0] for i in dirty ]
-        else:
-            return [ rect ]
+        return drawArea
 
 
     def flushQueue(self):
@@ -381,8 +360,10 @@ class BufferedTilemapRenderer(GameObject):
             tth = self.view.top * th
             getTile = self.getTileImage
 
-            images = ifilter(lambda x: x[1], ((i, getTile(i)) for i in self.queue))
-            [ blit(image, (x*tw-ltw, y*th-tth)) for ((x,y,l), image) in images ]
+            images = [ (i, getTile(i)) for i in self.queue ]
+
+            [ blit(image, (x*tw-ltw, y * th-tth))
+              for ((x,y,l), image) in ifilter(lambda x: x[1], images) ]
 
             self.queue = None
 
@@ -413,13 +394,49 @@ class BufferedTilemapRenderer(GameObject):
                 y*self.tmx.tileheight - (self.view.top*self.tmx.tileheight))
 
 
+def floydsteinberg(surface):
+    """SLOW"""
+
+    def closest(color):
+        r = 255 if color[0] > 128 else 0
+        g = 255 if color[1] > 128 else 0
+        b = 255 if color[2] > 128 else 0
+        return r, g, b
+
+    def diff(a, b):
+        return a[0]-b[0], a[1]-b[1], a[2]-b[2]
+
+    def calc(s, p, c, e):
+        try:
+            s.set_at(p, [ v + c * e[i] for i, v in enumerate(s.get_at(p)[:3]) ])
+        except:
+            pass
+
+    sx, sy = surface.get_size()
+    surface = surface.copy()
+    surface.lock()
+    cf1 = 7/16
+    cf2 = 3/16
+    cf3 = 5/16
+    cf4 = 1/16
+    p = product(xrange(sx), xrange(sy))
+    for x, y in p:
+        op = surface.get_at((x, y))
+        np = closest(op)
+        surface.set_at((x, y), np)
+        error = diff(op, np)
+        calc(surface, (x+1,y), cf1, error)
+        calc(surface, (x-1,y+1), cf2, error)
+        calc(surface, (x,y+1), cf3, error)
+        calc(surface, (x+1,y+1), cf4, error)
+    surface.unlock()
+    return surface
+
 
 class ShadowMask(object):
     """
     Renders shadows onto a map by blitting black tiles with dittered tiles, or
     optionally black tiles with an alpha value to simulate shadows.
-
-    Not finished!
     """
 
     def __init__(self, grad):
@@ -435,4 +452,3 @@ class ShadowMask(object):
 
     def draw(self, surface, origin):
         pass        
-

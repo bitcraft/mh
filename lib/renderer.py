@@ -1,5 +1,5 @@
-from lib2d.client.tilemap import BufferedTilemapRenderer
-from lib2d.common.objects import AvatarObject
+from lib2d.tilemap import BufferedTilemapRenderer
+from lib2d.objects import AvatarObject
 
 from pygame.rect import Rect
 
@@ -15,15 +15,14 @@ class AreaCamera(object):
     subclass it.
     """
 
-    def __init__(self, area, rect, tmxdata=None):
-        rect = Rect(rect)
-        self.rect = rect
+    def __init__(self, area, extent=None, tmxdata=None):
         self.area = area
-        self.set_extent(rect)
+        self.set_extent(extent)
+        self.zoom = 1.0
         self.avatars = []
 
         # create a renderer for the map
-        self.maprender = BufferedTilemapRenderer(tmxdata, rect)
+        self.maprender = BufferedTilemapRenderer(tmxdata, self.extent.size)
 
         self.map_width = tmxdata.tilewidth * tmxdata.width
         self.map_height = tmxdata.tileheight*tmxdata.height
@@ -51,7 +50,6 @@ class AreaCamera(object):
         self.half_height = self.extent.height / 2
         self.width  = self.extent.width
         self.height = self.extent.height
-        self.zoom = 1.0
 
 
     def update(self, time):
@@ -94,7 +92,7 @@ class AreaCamera(object):
         raise NotImplementedError
 
 
-    def draw(self, surface):
+    def draw(self, surface, origin=(0,0)):
         avatars = []
         for a in self.avatars:
             aWidth, aHeight = a.get_size()
@@ -104,15 +102,15 @@ class AreaCamera(object):
             rect = Rect((x-(aWidth-w)/2, y-aHeight+d, aWidth, aHeight))
             if self.extent.colliderect(rect):
                 x, y = self.toScreen(a.getPosition())
-                x += self.rect.left
-                y += self.rect.top
-                rect = Rect((x-(aWidth-w)/2, y-aHeight+d*2, aWidth, aHeight))
+                x += origin[0]
+                y += origin[1]
+                rect = Rect((x-(aWidth-w)/2, y-aHeight+d, aWidth, aHeight))
                 avatars.append((a, rect))
 
         onScreen = [ (a.image, r, 2) for a, r in avatars ]
         onScreen.sort(key=screenSorter)
 
-        return self.maprender.draw(surface, onScreen)
+        self.maprender.draw(surface, onScreen, origin)
 
 
     def toScreen(self, pos):

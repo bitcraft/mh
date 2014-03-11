@@ -24,21 +24,16 @@ import pygame
 
 
 """
-this provides an abstraction between pygame's input's and game input handling.
-events will be translated into a format that the game will handle.
+this provides an abstraction between pygame's input's and
+input handling.  events will be translated into a format
+that the game will handle.  this provides an way to deal
+with multiple inputs and reconfiguring keys at runtime.
 
 provides a couple nice features:
-    inputs can be reconfigured during runtime without changing game code
+    input can be reconfigured during runtime, without chaning game code
     inputs can be changed during runtime: want a joystick, no problem
-    input commands keep track of buttons being held as well
-    axises are corrected so that axises act 'naturally' if pressed in
-        opposite directions ie: left and right pressed simultaneously
-
-    mouse coordinates are translated to screen coordinates if screen is scaled
-    mouse can tell if being clicked or dragged
+    input commands keep track of buttons being held, as well
 """
-
-import gfx
 
 
 
@@ -74,7 +69,7 @@ class KeyboardPlayerInput(PlayerInput):
     
     def __init__(self, keymap=None):
 
-        if keymap is None:
+        if keymap == None:
             self.keymap = KeyboardPlayerInput.default_p1
         self.rev_keymap = dict((v,k) for k, v in self.keymap.iteritems())
         self.held = []
@@ -125,71 +120,7 @@ class KeyboardPlayerInput(PlayerInput):
                 if self.rev_keymap[P1_UP] in self.held:
                     return self.__class__, P1_UP, BUTTONDOWN
                         
-        return self, key, state
-
-
-
-class MousePlayerInput(PlayerInput):
-    keymap = {
-        1: P1_ACTION1,
-        2: P1_ACTION2}
-
-    
-    def __init__(self, keymap=None):
-        self.held = []
-        self.last_pos = None
-
-
-    def scalePoint(self, point):
-        if gfx.pix_scale == 1:
-            return point
-        else:
-            return (point[0] / gfx.pix_scale, point[1] / gfx.pix_scale)
-
-
-    def getHeld(self):
-        """
-        lets you know when click/dragging
-        """
-
-        return [ (self.__class__, key, (BUTTONHELD, self.last_pos)) for key in self.held ]
-
-
-    def getCommand(self, event):
-        if event.type == MOUSEBUTTONDOWN:
-            try:
-                key = self.keymap[event.button]
-            except:
-                return None
-
-            if event.button in self.held:
-                state = BUTTONHELD
-            else:
-                state = BUTTONDOWN
-                self.held.append(key)
-
-            point = self.scalePoint(event.pos)
-            return self.__class__, key, (state, point)
-
-        elif event.type == MOUSEBUTTONUP:
-            try:
-                key = self.keymap[event.button]
-            except:
-                return None
-
-            state = BUTTONUP
-            try:
-                self.held.remove(key)
-            except:
-                pass
-
-            point = self.scalePoint(event.pos)
-            return self.__class__, key, (state, point)
-
-        elif event.type == MOUSEMOTION:
-            point = self.scalePoint(event.pos)
-            self.last_pos = point
-            return self.__class__, MOUSEPOS, point
+        return self.__class__, key, state
 
 
 
@@ -210,7 +141,7 @@ class JoystickPlayerInput(PlayerInput):
         self.js.init()
         self.deadzone = float(0.12)
         
-        if keymap is None:
+        if keymap == None:
             self.keymap = JoystickPlayerInput.default_p1
         
     def getCommand(self, event):

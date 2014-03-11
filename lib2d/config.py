@@ -1,72 +1,38 @@
-from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
-from os.path import expanduser, expandvars
+"""
+Copyright 2010, 2011  Leif Theden
 
 
+This file is part of lib2d.
 
-class BravoConfigParser(SafeConfigParser):
-    """
-    Extended ``ConfigParser``.
-    """
+lib2d is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-    def getlist(self, section, option, separator=","):
-        """
-        Coerce an option to a list, and retrieve it.
-        """
+lib2d is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-        s = self.get(section, option).strip()
-        if s:
-            return [i.strip() for i in s.split(separator)]
-        else:
-            return []
+You should have received a copy of the GNU General Public License
+along with lib2d.  If not, see <http://www.gnu.org/licenses/>.
+"""
 
-    def getdefault(self, section, option, default):
-        """
-        Retrieve an option, or a default value.
-        """
 
-        try:
-            return self.get(section, option)
-        except (NoSectionError, NoOptionError):
-            return default
+from configobj import ConfigObj
 
-    def getbooleandefault(self, section, option, default):
-        """
-        Retrieve an option, or a default value.
-        """
+config_file = "lib2d.config"
 
-        try:
-            return self.getboolean(section, option)
-        except (NoSectionError, NoOptionError):
-            return default
+g_parsed = False
+g_config = {}
 
-    def getintdefault(self, section, option, default):
-        """
-        Retrieve an option, or a default value.
-        """
+def read_config():
+    global g_parsed
+    config = ConfigObj(config_file)
+    g_parsed = True
+    return config
 
-        try:
-            return self.getint(section, option)
-        except (NoSectionError, NoOptionError):
-            return default
-
-    def getlistdefault(self, section, option, default):
-        """
-        Retrieve an option, or a default value.
-        """
-
-        try:
-            return self.getlist(section, option)
-        except (NoSectionError, NoOptionError):
-            return default
-
-def read_configuration():
-    configuration = BravoConfigParser()
-
-    default_files = [
-        expanduser("~/.lib2d/bravo.ini"),
-        "server.ini",
-    ]
-
-    configuration.read(default_files)
-
-    return configuration
+def get_config():
+    global g_config
+    if g_parsed == False: g_config = read_config()
+    return config    
