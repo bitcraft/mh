@@ -4,6 +4,9 @@ Game world for "mh"
 this will create a pickle that can be read by the library
 """
 
+import pygame
+pygame.mixer.init()
+
 from lib2d.env import Environment, Area
 from lib2d.avatar import Avatar, Animation, StaticAnimation
 from lib2d.objects import AvatarObject
