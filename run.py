@@ -32,7 +32,7 @@ class CutsceneTest(Game):
 
 class FullGame(Game):
     def start(self):
-        gfx.set_screen((640, 480), 3, "scale")
+        gfx.set_screen((800, 600), 3, "scale")
         self.sd.reload_screen()
 
         from lib.titlescreen import TitleScreen
@@ -51,7 +51,7 @@ class WorldTest(Game):
         from lib2d.objects import loadObject
         import pygame
 
-        gfx.set_screen((640, 480), 2, "scale")
+        gfx.set_screen((800, 600), 2, "scale")
         self.sd.reload_screen()
 
         uni = loadObject("mh")
@@ -71,7 +71,7 @@ if __name__ == "__main__":
         import pstats
         import sys
 
-        game = WorldTest()
+        game = FullGame()
         cProfile.run('game.start()', "results.prof")
 
         p = pstats.Stats("results.prof")
@@ -80,7 +80,7 @@ if __name__ == "__main__":
         #p.sort_stats('time').print_stats(20)
 
     else:
-        WorldTest().start()
+        FullGame().start()
         #CutsceneTest().start()
         #FullGame().start()
 
