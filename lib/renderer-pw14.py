@@ -1,8 +1,6 @@
-from lib2d.tilemap import BufferedTilemapRenderer
-from lib2d.objects import AvatarObject
 from pygame import Rect, draw
 
-import weakref
+from lib2d.tilemap import BufferedTilemapRenderer
 
 
 def screenSorter(a):

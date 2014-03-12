@@ -18,19 +18,19 @@ You should have received a copy of the GNU General Public License
 along with lib2d.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from objects import GameObject
-import res
-
 import pygame
+
+from objects import GameObject
 
 
 """
 TODO: make some sort of manager class for animations
       would make resource sharing less expensive
       in many cases, a cache doesn't make sence, but here...it does
-"""     
+"""
 
-def padimage(image):    
+
+def padimage(image):
     """
     Do a little processing to the input image to make it prettier when rotated.
     Pad the image with transparent pixels so the edges get antialised when
@@ -39,12 +39,12 @@ def padimage(image):
 
     # replacement surface that is slightly bigger then the original
     new = Surface(image.get_rect().inflate(2, 2).size, pygame.SRCALPHA)
-    color = image.get_at((0,0))
+    color = image.get_at((0, 0))
 
     # set the color's alpha channel to be clear
     color[3] = 0
     new.fill(color)
-    new.blit(image, (1,1))
+    new.blit(image, (1, 1))
 
     return new
 
@@ -88,10 +88,10 @@ class Animation(GameObject):
         tw, th = self.size
         image = pygame.image.load(self.filename)
         iw, ih = image.get_size()
-        self.directions = ih/th
+        self.directions = ih / th
         self.frames = ([],) * self.directions
-        for y in range(0, ih/th, th):
-            for x in range(0, iw/tw, tw):
+        for y in range(0, ih / th, th):
+            for x in range(0, iw / tw, tw):
                 frame = AnimationFrame(image.subsurface((x, y, tw, th)))
                 self.add_frame(frame, y)
 

@@ -1,13 +1,13 @@
-import vec
-import res
-from objects import GameObject
 from math import pi
+
 from pygame import Rect
-from bbox import BBox
 
-cardinalDirs = {"north": pi*1.5, "east": 0.0, "south": pi/2, "west": pi}
+from . import res
+from .objects import GameObject
+from .bbox import BBox
 
 
+cardinalDirs = {"north": pi * 1.5, "east": 0.0, "south": pi / 2, "west": pi}
 
 
 class DummyQuadTree(object):
@@ -17,6 +17,7 @@ class DummyQuadTree(object):
 
     def hit(self, rect):
         return False
+
 
 class Environment(GameObject):
     """
@@ -58,7 +59,7 @@ class Area(Environment):
 
 
     def defaultPosition(self):
-        return BBox(0,0,0,1,1,1)
+        return BBox(0, 0, 0, 1, 1, 1)
 
     def defaultSize(self):
         # TODO: this cannot be hardcoded!
@@ -67,11 +68,11 @@ class Area(Environment):
 
     def __init__(self):
         GameObject.__init__(self)
-        self.exits    = {}
-        self.geometry = {}       # geometry (for collisions) of each layer
-        self.objects = {}        # position and size of objects in 3d space
-        self.orientations = {}   # records where the object is facing
-        self.extent = None       # absolute boundries of the area
+        self.exits = {}
+        self.geometry = {}  # geometry (for collisions) of each layer
+        self.objects = {}  # position and size of objects in 3d space
+        self.orientations = {}  # records where the object is facing
+        self.extent = None  # absolute boundries of the area
         self.joins = []
         self._oldPositions = {}  # used in collision handling
 
@@ -81,7 +82,7 @@ class Area(Environment):
 
     def update(self, time):
         self.time += time
-        [ o.update(time) for o in self.objects ]
+        [o.update(time) for o in self.objects]
 
 
     def join(self, obj1, obj2):
@@ -118,7 +119,7 @@ class Area(Environment):
         set the layer's geometry.  expects a list of rects.
         """
 
-        import quadtree
+        from . import quadtree
 
         self.geometry[layer] = quadtree.FastQuadTree(rects)
         self.geoRect = rects
@@ -139,10 +140,9 @@ class Area(Environment):
             return True if hit else False
         except KeyError:
             msg = "Area Layer {} does not have a collision layer"
-            print msg.format(layer)
+            print(msg.format(layer))
             return False
-
-            raise Exception, msg.format(layer)
+            raise Exception
 
 
     def testCollideObjects(self, bbox):
@@ -153,7 +153,7 @@ class Area(Environment):
             values.append(b)
             keys.append(obj)
 
-        return [ keys[i] for i in bbox.collidelistall(values) ]
+        return [keys[i] for i in bbox.collidelistall(values)]
 
 
     def testCollideGeometryAll(self):
@@ -178,7 +178,7 @@ class Area(Environment):
             self.objects[obj] = bbox
             self._oldPositions[obj] = bbox
             return True
-    
+
 
     def testCollide(self, bbox):
         return False
@@ -191,7 +191,7 @@ class Area(Environment):
 
 
     def getPositions(self):
-        return [ (o, b.origin) for (o, b) in self.objects.items() ]
+        return [(o, b.origin) for (o, b) in self.objects.items()]
 
 
     def getOrientation(self, obj):
@@ -216,9 +216,11 @@ class Area(Environment):
         self.objects[obj] = self.defaultPosition()
         self.orientations[obj] = 0.0
 
-
-    def setPosition(self, obj, (x, y, z)):
-        """ Attempt to move object in 3d space.  Returns true if able. """
+    def setPosition(self, obj, coords):
+        """
+        Attempt to move object in 3d space.  Returns true if able.
+        """
+        x, y, z = coords
 
         size = self.objects[obj].size
         bbox = BBox((x, y, z), size)
@@ -230,7 +232,7 @@ class Area(Environment):
 
         # object is within areas extent and doesn't collide, so set it
         elif self.extent.contains(self.toRect(bbox)):
-            self._oldPositions[obj] = self.objects[obj] 
+            self._oldPositions[obj] = self.objects[obj]
             self.objects[obj] = bbox
             return True
 
@@ -252,8 +254,11 @@ class Area(Environment):
         return self._oldPositions[obj]
 
 
-    def movePosition(self, obj, (x, y, z), push=False):
-        """ Attempt to move an object in 3d space.  Returns True if able. """ 
+    def movePosition(self, obj, coords, push=False):
+        """
+        Attempt to move an object in 3d space.  Returns True if able.
+        """
+        x, y, z = coords
 
         bbox = self.objects[obj].move(x, y, z)
 
@@ -269,7 +274,7 @@ class Area(Environment):
             pass
 
         # find things we are joined to
-        joins = [ i[1] for i in self.joins if i[0] == obj ]
+        joins = [i[1] for i in self.joins if i[0] == obj]
 
         # if joined, then add it to collisions and treat it is if being pushed
         if joins:
@@ -280,7 +285,7 @@ class Area(Environment):
         if collide:
 
             # are we pushing something?
-            if push and all([ other.pushable for other in collide ]):
+            if push and all([other.pushable for other in collide]):
                 if self.extent.contains(self.toRect(bbox)):
 
                     # we are able to move 
@@ -295,7 +300,7 @@ class Area(Environment):
                             return False
 
                     return True
-    
+
             # one of the objects cannot be pushed
             return False
 
@@ -306,8 +311,8 @@ class Area(Environment):
 
             self.messages.append("{} {} moves".format(self.time, obj.name))
             return True
- 
-            
+
+
     def getPosition(self, obj):
         return self.objects[obj].origin
 
@@ -322,52 +327,51 @@ class Area(Environment):
         This object must already be connected to the data tree, otherwise
         object loading will not work...and loading will fail.
         """
+        import pytmx
 
-        def toWorld(data, (x, y, l)):
+        def toWorld(data, coords):
             """ translate tiled map coordinates to world coordinates """
-            return y*data.tileheight, x*data.tilewidth, l
-
-
-        import tmxloader
+            return coords[1] * data.tileheight, coords[0] * data.tilewidth, l
 
         self.mappath = res.mapPath(mapname)
-        data = tmxloader.load_tmx(self.mappath)
+        data = pytmx.tmxloader.load_tmx(self.mappath)
 
         # set the boundries (extent) of this map
-        self.setExtent(((0,0), \
-            (data.width * data.tilewidth, data.height * data.tileheight)))
+        self.setExtent(((0, 0),
+                      (data.width * data.tilewidth, data.height * data.tileheight)))
 
-        props = data.getTilePropertiesByLayer(-1)
+        props = data.get_tile_properties_by_layer(3)
 
-   
+
         # load the level geometry and set it 
-        rects = tmxloader.buildDistributionRects(data, -1)
+        rects = pytmx.build_rects(data, 4)
         self.setLayerGeometry(4, rects)
 
         # load the npc's and place them in the default positions 
-        npcs = [ p for p in props if p[1].get('group', None) == 'npc' ] 
+        npcs = [p for p in props if p[1].get('group', None) == 'npc']
 
         for (gid, prop) in npcs:
             pos = data.getTileLocation(gid)
             if len(pos) > 1:
                 msg = "control gid: {} is used in more than one locaton"
-                raise Exception, msg.format(gid)
+                print(msg.format(gid))
+                raise Exception
 
             x, y, z = toWorld(data, pos[0])
-            x += data.tileheight     # needed to position objects correctly
+            x += data.tileheight  # needed to position objects correctly
             y += data.tilewidth / 2  # needed to position objects correctly
             obj = self._parent.getChildByGUID(int(prop['guid']))
 
             self.add(obj)
             w, h, d = (10, 6, 8)
-            bbox = BBox(x-d, y, z, d, w, h)
+            bbox = BBox(x - d, y, z, d, w, h)
             self.setBBox(obj, bbox)
             self.setOrientation(obj, "south")
-  
+
         # load the items and place them where they should go
         # items can have duplicate entries
-        items = [ p for p in props if p[1].get('group', None) == 'item' ]
-        done = [] 
+        items = [p for p in props if p[1].get('group', None) == 'item']
+        done = []
 
         for (gid, prop) in items:
             if gid in done: continue
@@ -379,7 +383,7 @@ class Area(Environment):
 
             for x, y, l in locations:
                 x, y, z = toWorld(data, (x, y, l))
-                x += data.tileheight     # needed to position objects correctly
+                x += data.tileheight  # needed to position objects correctly
                 y += data.tilewidth / 2  # needed to position objects correctly
 
                 # objects cannot exists in multiple locations, so a copy is
@@ -390,16 +394,16 @@ class Area(Environment):
                 self.add(obj)
                 z = 0
                 w, h, d = (10, 6, 8)
-                bbox = BBox(x-d, y, z, d, w, h)
+                bbox = BBox(x - d, y, z, d, w, h)
                 self.setBBox(obj, bbox)
                 self.setOrientation(obj, "south")
-                copy = True 
+                copy = True
 
-        # handle the exits
+                # handle the exits
         # here only the exits and positions are saved
         # another class will have to finalize the exits by adding a ref to
         # guid of the other area
-        exits = [ p for p in props if p[1].get('group', None) == 'door' ]
+        exits = [p for p in props if p[1].get('group', None) == 'door']
         for gid, prop in exits:
             x, y, l = data.getTileLocation(gid)[0]
             y *= data.tilewidth
@@ -408,7 +412,7 @@ class Area(Environment):
 
 
     def stick(self, obj):
-        self.setPosition(obj, self._oldPositions[obj])        
+        self.setPosition(obj, self._oldPositions[obj])
 
 
     def unstick(self, obj):

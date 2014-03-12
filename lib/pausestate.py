@@ -1,11 +1,5 @@
 from lib2d.gamestate import GameState
-from lib2d.vec import Vec2d
-from lib2d.tilemap import BigMap, View
-from lib2d.world import World
-from renderer import Camera
 import lib2d.sheetloader
-
-from lib2d import gfx
 
 guy = lib2d.sheetloader.load_actor("Hero")
 

@@ -3,7 +3,7 @@ Chop up an image of a dialog box into tiles
 resulting image is smaller that the original and easier to resize
 """
 
-import pygame, os
+import pygame
 
 # for pygame without a window (doesn't work on os x)
 #os.environ["SDL_VIDEODRIVER"] = "dummy"
@@ -52,8 +52,8 @@ if __name__ == "__main__":
 
     # make sure there are enough arguments:
     if len(sys.argv) != 5:
-        print "USAGE:"
-        print "chop.py input output tilewidth tileheight"
+        print("USAGE:")
+        print("chop.py input output tilewidth tileheight")
         print
         sys.exit()
 

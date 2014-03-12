@@ -4,8 +4,9 @@ rewrite of the tilmap engine for lib2d.
 this time has tiled TMX maps built in and required
 """
 
+from itertools import product, chain
+from pytmx import *
 import pygame
-from itertools import product, chain, ifilter
 
 
 # this image will be used when a tile cannot be loaded
@@ -37,7 +38,6 @@ class BufferedTilemapRenderer(object):
     """
 
     def __init__(self, tmx, size, **kwargs):
-        import tmxloader
 
         self.default_image = generateDefaultImage((tmx.tilewidth,
                                                    tmx.tileheight))
@@ -51,23 +51,23 @@ class BufferedTilemapRenderer(object):
         necessary to set the size with the function.
         """
 
-        import quadtree
+        from . import quadtree
 
         left, self.xoffset = divmod(size[0] / 2, self.tmx.tilewidth)
-        top,  self.yoffset = divmod(size[1] / 2, self.tmx.tileheight)
+        top, self.yoffset = divmod(size[1] / 2, self.tmx.tileheight)
 
-        self.view = pygame.Rect(left,top, (size[0] / self.tmx.tilewidth), 
-                               (size[1] / self.tmx.tileheight))
+        self.view = pygame.Rect(left, top, (size[0] / self.tmx.tilewidth),
+                                (size[1] / self.tmx.tileheight))
 
-        self.oldX = self.xoffset + (left * self.tmx.tilewidth) 
-        self.oldY = self.yoffset + (top  * self.tmx.tileheight)
+        self.oldX = self.xoffset + (left * self.tmx.tilewidth)
+        self.oldY = self.yoffset + (top * self.tmx.tileheight)
 
-        self.bufferWidth  = size[0] + self.tmx.tilewidth * 2
+        self.bufferWidth = size[0] + self.tmx.tilewidth * 2
         self.bufferHeight = size[1] + self.tmx.tileheight * 2
 
         self.size = size
 
-        self.halfWidth  = size[0] / 2
+        self.halfWidth = size[0] / 2
         self.halfHeight = size[1] / 2
 
         # this is where the magic happens
@@ -78,33 +78,33 @@ class BufferedTilemapRenderer(object):
 
         # quadtree is used to correctly draw tiles that cover 'sprites'
         rects = []
-        p = product(range(self.view.width+2), range(self.view.height+2))
+        p = product(range(self.view.width + 2), range(self.view.height + 2))
         for x, y in p:
-            rect = pygame.Rect((x*self.tmx.tilewidth,y*self.tmx.tileheight),
+            rect = pygame.Rect((x * self.tmx.tilewidth, y * self.tmx.tileheight),
                                (self.tmx.tilewidth, self.tmx.tileheight))
             rects.append(rect)
         self.layerQuadtree = quadtree.FastQuadTree(rects, 4)
 
-        self.blank = True 
+        self.blank = True
         self.queue = None
 
 
-    def center(self, (x, y)):
+    def center(self, coords):
         """
         center the map on a pixel
 
         opt: ok
         """
 
-        x, y = int(x), int(y)
+        x, y = coords[0], coords[1]
 
         if (self.oldX == x) and (self.oldY == y):
             return
 
         # calc the new postion in tiles and offset
-        left, self.xoffset = divmod(x-self.halfWidth,  self.tmx.tilewidth)
-        top,  self.yoffset = divmod(y-self.halfHeight, self.tmx.tileheight)
- 
+        left, self.xoffset = divmod(x - self.halfWidth, self.tmx.tilewidth)
+        top, self.yoffset = divmod(y - self.halfHeight, self.tmx.tileheight)
+
         # determine if tiles should be redrawn
         dx = left - self.view.left
         dy = top - self.view.top
@@ -125,17 +125,18 @@ class BufferedTilemapRenderer(object):
                 dy -= 1
 
         # don't adjust unless we have to
-        if not (dx, dy) == (0,0):
+        if not (dx, dy) == (0, 0):
             self.adjustView((int(dx), int(dy)))
 
         self.oldX, self.oldY = x, y
 
 
-    def getTileImage(self, (x, y, l)):
+    def getTileImage(self, coords):
         """
         Return a surface for this position.  Returns a blank tile if cannot be
         loaded.
         """
+        x, y, l = coords
 
         try:
             return self.tmx.getTileImage(x, y, l)
@@ -143,15 +144,15 @@ class BufferedTilemapRenderer(object):
             return self.default_image
 
 
-    def scroll(self, (x, y)):
+    def scroll(self, coords):
         """
         move the background in pixels
         """
 
-        self.center((x + self.oldX, y + self.oldY))
+        self.center((coords[0] + self.oldX, coords[1] + self.oldY))
 
 
-    def adjustView(self, (x, y)):
+    def adjustView(self, coords):
         """
         adjusts the view by re-tiling the background
 
@@ -166,6 +167,7 @@ class BufferedTilemapRenderer(object):
 
         this method is mostly for internal use only
         """
+        x, y = coords
 
         # make sure that the map is completely drawn
         self.flushQueue()
@@ -190,8 +192,9 @@ class BufferedTilemapRenderer(object):
         as the surface passed.
         """
 
-        if (surface==depth==None) and (flags==0):
-            raise ValueError, "Need to pass a surface, depth, for flags"
+        if (surface == depth == None) and (flags == 0):
+            print("Need to pass a surface, depth, for flags")
+            raise ValueError
 
         if surface:
             for i, t in enumerate(self.tilemap.images):
@@ -205,7 +208,7 @@ class BufferedTilemapRenderer(object):
             self.buffer = self.buffer.convert(depth, flags)
 
 
-    def queueEdgeTiles(self, (x, y)):
+    def queueEdgeTiles(self, coords):
         """
         add the tiles on the edge that need to be redrawn to the queue also,
         for colorkey layers, we will fill the new edge with the colorkey color
@@ -216,39 +219,39 @@ class BufferedTilemapRenderer(object):
 
         for internal use only
         """
+        x, y = coords
 
         if self.queue == None:
             self.queue = iter([])
 
-
+        tl = len([i for i in self.tmx.visible_layers if isinstance(i, TiledTileLayer)])
         # right
         if x > 0:
-            p=product(xrange(self.view.right+1, self.view.right-x,-1),
-                      xrange(self.view.top, self.view.bottom + 2),
-                      xrange(len(self.tmx.visibleTileLayers)))
-            self.queue = chain(p, self.queue) 
-
-        # left
-        elif x < 0:
-            p=product(xrange(self.view.left, self.view.left - x),
-                      xrange(self.view.top, self.view.bottom + 2),
-                      xrange(len(self.tmx.visibleTileLayers)))
-            self.queue = chain(p, self.queue) 
-
-        # bottom
-        if y > 0:
-            p=product(xrange(self.view.left, self.view.right + 2),
-                      xrange(self.view.bottom+1, self.view.bottom-y, -1),
-                      xrange(len(self.tmx.visibleTileLayers)))
-            self.queue = chain(p, self.queue) 
-
-        # top
-        elif y < 0:
-            p=product(xrange(self.view.left, self.view.right + 2),
-                      xrange(self.view.top, self.view.top - y),
-                      xrange(len(self.tmx.visibleTileLayers)))
+            p = product(range(self.view.right + 1, self.view.right - x, -1),
+                        range(self.view.top, self.view.bottom + 2),
+                        range(tl))
             self.queue = chain(p, self.queue)
 
+            # left
+        elif x < 0:
+            p = product(range(self.view.left, self.view.left - x),
+                        range(self.view.top, self.view.bottom + 2),
+                        range(tl))
+            self.queue = chain(p, self.queue)
+
+            # bottom
+        if y > 0:
+            p = product(range(self.view.left, self.view.right + 2),
+                        range(self.view.bottom + 1, self.view.bottom - y, -1),
+                        range(tl))
+            self.queue = chain(p, self.queue)
+
+            # top
+        elif y < 0:
+            p = product(range(self.view.left, self.view.right + 2),
+                        range(self.view.top, self.view.top - y),
+                        range(tl))
+            self.queue = chain(p, self.queue)
 
     def update(self, time):
         """
@@ -268,7 +271,7 @@ class BufferedTilemapRenderer(object):
 
             for i in range(self.blitPerUpdate):
                 try:
-                    x,y,l = next(self.queue)
+                    x, y, l = next(self.queue)
                 except StopIteration:
                     self.queue = None
                     break
@@ -278,7 +281,7 @@ class BufferedTilemapRenderer(object):
                     bufblit(image, (x * tw - ltw, y * th - tth))
 
 
-    def draw(self, surface, surfaces=[], origin=(0,0)):
+    def draw(self, surface, surfaces=[], origin=(0, 0)):
         """
         draw the map onto a surface.
     
@@ -313,7 +316,7 @@ class BufferedTilemapRenderer(object):
         surblit(self.buffer, (-ox, -oy))
 
         # TODO: make sure to filter out surfaces outside the screen
-        dirty = [ (surblit(a[0], a[1]), a[2]) for a in surfaces ]
+        dirty = [(surblit(a[0], a[1]), a[2]) for a in surfaces]
 
         # TODO: new sorting method for surfaces
         #       on each update, avatar sets a sorting flag if moved
@@ -326,20 +329,20 @@ class BufferedTilemapRenderer(object):
             dirtyRect = dirtyRect.move(ox, oy)
             for r in self.layerQuadtree.hit(dirtyRect):
                 x, y, tw, th = r
-                if dirtyRect.bottom < y+th:
+                if dirtyRect.bottom < y + th:
                     # create illusion of depth by sorting images and
                     # tiles that are on the same layer.  if the image is
                     # lower than the tile, don't reblit the tile
-                    tile = getTile((x/tw + left, y/th + top, layer))
+                    tile = getTile((x / tw + left, y / th + top, layer))
                     if not tile == 0:
-                        surblit(tile, (x-ox, y-oy))
+                        surblit(tile, (x - ox, y - oy))
 
-                for l in range(layer+1,len(self.tmx.visibleTileLayers)):
+                for l in range(layer + 1, len(self.tmx.visibleTileLayers)):
                     # there is a collision between a tile and a image, so
                     # we simply reblit the affected tiles over the sprite
-                    tile = getTile((x/tw + left, y/th + top, l))
+                    tile = getTile((x / tw + left, y / th + top, l))
                     if not tile == 0:
-                        surblit(tile, (x-ox, y-oy))
+                        surblit(tile, (x - ox, y - oy))
 
         # restore clipping area
         surface.set_clip(origClip)
@@ -360,10 +363,10 @@ class BufferedTilemapRenderer(object):
             tth = self.view.top * th
             getTile = self.getTileImage
 
-            images = [ (i, getTile(i)) for i in self.queue ]
+            images = [(i, getTile(i)) for i in self.queue]
 
-            [ blit(image, (x*tw-ltw, y * th-tth))
-              for ((x,y,l), image) in ifilter(lambda x: x[1], images) ]
+            [blit(image, (x * tw - ltw, y * th - tth))
+             for ((x, y, l), image) in filter(lambda x: x[1], images)]
 
             self.queue = None
 
@@ -376,22 +379,22 @@ class BufferedTilemapRenderer(object):
         buffer.  will be slow, you've been warned.
         """
 
-        self.queue = product(xrange(self.view.left, self.view.right + 2),
-                             xrange(self.view.top, self.view.bottom + 2),
-                             xrange(len(self.tmx.visibleTileLayers)))
+        self.queue = product(range(self.view.left, self.view.right + 2),
+                             range(self.view.top, self.view.bottom + 2),
+                             range(len(self.tmx.visibleTileLayers)))
 
         self.flushQueue()
 
 
-    def toScreen(self, (x, y)):
+    def toScreen(self, coords):
         """
         Adjusted for change in the view
 
         opt: ok
         """
 
-        return (x*self.tmx.tilewidth - (self.view.left*self.tmx.tilewidth),
-                y*self.tmx.tileheight - (self.view.top*self.tmx.tileheight))
+        return (coords[0] * self.tmx.tilewidth - (self.view.left * self.tmx.tilewidth),
+                coords[1] * self.tmx.tileheight - (self.view.top * self.tmx.tileheight))
 
 
 def floydsteinberg(surface):
@@ -404,31 +407,31 @@ def floydsteinberg(surface):
         return r, g, b
 
     def diff(a, b):
-        return a[0]-b[0], a[1]-b[1], a[2]-b[2]
+        return a[0] - b[0], a[1] - b[1], a[2] - b[2]
 
     def calc(s, p, c, e):
         try:
-            s.set_at(p, [ v + c * e[i] for i, v in enumerate(s.get_at(p)[:3]) ])
+            s.set_at(p, [v + c * e[i] for i, v in enumerate(s.get_at(p)[:3])])
         except:
             pass
 
     sx, sy = surface.get_size()
     surface = surface.copy()
     surface.lock()
-    cf1 = 7/16
-    cf2 = 3/16
-    cf3 = 5/16
-    cf4 = 1/16
-    p = product(xrange(sx), xrange(sy))
+    cf1 = 7 / 16
+    cf2 = 3 / 16
+    cf3 = 5 / 16
+    cf4 = 1 / 16
+    p = product(range(sx), range(sy))
     for x, y in p:
         op = surface.get_at((x, y))
         np = closest(op)
         surface.set_at((x, y), np)
         error = diff(op, np)
-        calc(surface, (x+1,y), cf1, error)
-        calc(surface, (x-1,y+1), cf2, error)
-        calc(surface, (x,y+1), cf3, error)
-        calc(surface, (x+1,y+1), cf4, error)
+        calc(surface, (x + 1, y), cf1, error)
+        calc(surface, (x - 1, y + 1), cf2, error)
+        calc(surface, (x, y + 1), cf3, error)
+        calc(surface, (x + 1, y + 1), cf4, error)
     surface.unlock()
     return surface
 
@@ -444,10 +447,10 @@ class ShadowMask(object):
         iw, self.th = image.get_size()
         self.tw = iw / 64
 
-        for x in xrange(0,iw,tw):
-            self.images = [ image.subsurface((x,0,self.tw,self.th)) ]
+        for x in range(0, iw, tw):
+            self.images = [image.subsurface((x, 0, self.tw, self.th))]
 
-    def center(self, (x,y)):
+    def center(self, coords):
         pass
 
     def draw(self, surface, origin):

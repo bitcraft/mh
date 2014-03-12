@@ -25,27 +25,29 @@ simple:
     the resulting delta will be the saved game
 """
 
-import pygame
 import os.path
+
+import pygame
 
 
 DEBUG = False
 
+
 def debug(text):
     if DEBUG: sys.stdout.write(text)
-
-
 
 
 _resPath = "resources"
 _defaultFont = None
 
 
-
 class NoSound:
     def play(self): pass
+
     def stop(self): pass
+
     def set_volume(self, v): pass
+
 
 dummySound = NoSound()
 
@@ -75,9 +77,10 @@ def mapPath(filename):
 def aniPath(filename):
     return os.path.join(_resPath, "animations", filename)
 
+
 def imagePath(filename):
     return os.path.join(_resPath, "images", filename)
-    
+
 
 def loadImage(name, alpha=False, colorkey=False):
     fullpath = imagePath(name)
@@ -85,22 +88,23 @@ def loadImage(name, alpha=False, colorkey=False):
     try:
         image = pygame.image.load(fullpath)
 
-    except pygame.error, message:
+    except pygame.error:
         msg = "Cannot load image: {}"
-        raise Exception, msg.format(fullpath)
+        print(msg.format(fullpath))
+        raise Exception
 
     if alpha:
         image = image.convert_alpha()
 
     elif colorkey:
         image = image.convert()
-        image.set_colorkey(image.get_at((0,0)), pygame.RLEACCEL)
+        image.set_colorkey(image.get_at((0, 0)), pygame.RLEACCEL)
 
     else:
         image = image.convert()
 
-
     return image
+
 
 def soundPath(filename):
     return os.path.join(_resPath, "sounds", filename)
@@ -108,7 +112,7 @@ def soundPath(filename):
 
 def loadSound(filename):
     fullpath = soundPath(filename)
-    
+
     if not pygame.mixer:
         debug("Cannot load sound: pygame.mixer not ready\n")
         return dummySound
@@ -118,9 +122,8 @@ def loadSound(filename):
 
     try:
         sound = pygame.mixer.Sound(fullpath)
-    except pygame.error, message:
+    except pygame.error:
         debug("Cannot load sound: %s\n" % fullpath)
-        debug("%s\n" % message)
         return dummySound
 
     return sound
@@ -128,6 +131,7 @@ def loadSound(filename):
 
 def musicPath(filename):
     return os.path.join(_resPath, "music", filename)
+
 
 def playMusic(filename, *args, **kwargs):
     stopMusic()

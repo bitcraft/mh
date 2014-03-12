@@ -20,9 +20,11 @@ prefix will be the first part of each image's file name
 
 """
 
-from cStringIO import StringIO
 from struct import pack
 import sys
+
+from cStringIO import StringIO
+
 
 def encode(number, alphabet='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'):
     """Convert positive integer to a base36 string."""
@@ -53,16 +55,16 @@ def decode(number):
 try:
     from PIL import Image
 except:
-    print "cannot import PIL"
-    print "PIL must be installed"
+    print("cannot import PIL")
+    print("PIL must be installed")
     sys.exit()
 
 # make sure there are enough arguments:
 if len(sys.argv) != 4:
-    print "USAGE:"
-    print "slice.py image_file prefix tilesize"
+    print("USAGE:")
+    print("slice.py image_file prefix tilesize")
     print
-    print "prefix will be the first part of each image's file name"
+    print("prefix will be the first part of each image's file name")
     sys.exit()
 
 tilesizeX, tilesizeY = int(sys.argv[3]), int(sys.argv[3])

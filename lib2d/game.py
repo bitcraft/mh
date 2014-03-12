@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import pygame
+
 from .statedriver import driver as sd
 from . import gfx
 

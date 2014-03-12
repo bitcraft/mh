@@ -2,8 +2,10 @@
 Zones are a special construct that detects when objects are inside of them
 """
 
-from objects import GameObject
 from pygame import Rect
+
+from objects import GameObject
+
 
 
 # expects to be given a PyTMX object node

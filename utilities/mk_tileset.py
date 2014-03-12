@@ -37,7 +37,9 @@ leif.theden at gmail.com
 
 from xml.dom.minidom import Document
 import os.path
+
 import pygame
+
 
 
 # tile size
@@ -111,7 +113,7 @@ for title, fg, bg in colorsets:
     # display the title inside the tileset
     title = title[:16].lower()
     xoffset = (8 - len(title) / 2) * tilesize[0]
-    for x in xrange(0, len(title)):
+    for x in range(0, len(title)):
         txt = font.render(title[x], 1, image_fg, image_bg)
         image.blit(txt, (xoffset + 2, yoffset + 3))
         xoffset += imagesize[0]   
@@ -122,8 +124,8 @@ for title, fg, bg in colorsets:
 
     # add the tiles to the image and the xml document
     local_id = 0
-    for y in xrange(0, imagesize[1]):
-        for x in xrange(0, imagesize[0]):
+    for y in range(0, imagesize[1]):
+        for x in range(0, imagesize[0]):
 
             # blit the hex id on the image
             txt = font.render(hex(local_id)[2:].upper(), 0, fg, bg)

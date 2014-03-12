@@ -24,23 +24,24 @@ animations:
     the loader will know this and create a proper avatar for each image
 """
 
-
-import re, sys, os
-from configobj import ConfigObj
+import sys
+import os
 from collections import defaultdict
+
+from configobj import ConfigObj
 
 
 try:
     from PIL import Image
 except:
-    print "cannot import PIL"
-    print "PIL must be installed"
+    print("cannot import PIL")
+    print("PIL must be installed")
     sys.exit()
 
 # make sure there are enough arguments:
 if len(sys.argv) < 2:
-    print "USAGE:"
-    print "cutup.py template"
+    print("USAGE:")
+    print("cutup.py template")
     print
     sys.exit()
 

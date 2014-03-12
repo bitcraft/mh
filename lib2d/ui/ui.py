@@ -12,12 +12,12 @@ this module strives to NOT be a replacement for more fucntional draw toolkits.
 this is a bare-bones simple draw toolkit for mouse use only.
 """
 
+import pygame
+
 from lib2d.ui.packer import GridPacker
 from lib2d.ui import Element, Frame
 from lib2d.buttons import *
 from lib2d import res, draw, vec
-import pygame, itertools
-
 
 
 class GraphicIcon(Element):
@@ -57,7 +57,7 @@ class GraphicIcon(Element):
         pass
 
     def onBeginHover(self, point):
-        self.image.fill((96,96,96), special_flags=pygame.BLEND_ADD)
+        self.image.fill((96, 96, 96), special_flags=pygame.BLEND_ADD)
 
     def onEndHover(self, point):
         self.image = self.originalImage.copy()
@@ -91,9 +91,9 @@ class RoundMenu(Element):
         self.anchor = point + self.element.rect.topleft
         tw, th = self.icons[0].image.get_size()
         w = tw * len(self.icons)
-        rect = pygame.Rect(self.anchor-(w/2,8), (tw, th))
+        rect = pygame.Rect(self.anchor - (w / 2, 8), (tw, th))
         for i, icon in enumerate(self.icons):
-            icon.rect = rect.move(tw*i, 0)
+            icon.rect = rect.move(tw * i, 0)
             self.frame.addElement(icon)
 
     def close(self):
@@ -111,7 +111,7 @@ class UserInterface(Frame):
 
     height = 20
     color = pygame.Color(196, 207, 214)
-    transparent = pygame.Color(1,2,3)
+    transparent = pygame.Color(1, 2, 3)
 
     background = (109, 109, 109)
     foreground = (0, 0, 0)
@@ -124,7 +124,7 @@ class UserInterface(Frame):
         self.blank = True
         self.packer = GridPacker()
 
-        self.tools = [ PanTool(self) ]
+        self.tools = [PanTool(self)]
         for tool in self.tools:
             tool.load()
 
@@ -148,17 +148,17 @@ class UserInterface(Frame):
         self.paneManager = None
 
         x, y, w, h = rect
-        w = x+int((w*.30))
+        w = x + int((w * .30))
         s = pygame.Surface((w, self.height))
         s.fill(self.transparent)
         s.set_colorkey(self.transparent, pygame.RLEACCEL)
 
-        pygame.draw.circle(s, (128,128,128), (self.height, 1), self.height)
+        pygame.draw.circle(s, (128, 128, 128), (self.height, 1), self.height)
         pygame.draw.rect(s, (128, 128, 128), (self.height, 1, w, self.height))
 
-        pygame.draw.circle(s, self.color, (self.height+1, 0), self.height)
-        pygame.draw.rect(s, self.color, (self.height+1, 0, w-self.height, self.height))
-        
+        pygame.draw.circle(s, self.color, (self.height + 1, 0), self.height)
+        pygame.draw.rect(s, self.color, (self.height + 1, 0, w - self.height, self.height))
+
         self.buttonbar = s
 
 
@@ -168,9 +168,9 @@ class UserInterface(Frame):
         return
 
         x, y, w, h = self.rect
-        back_width = x+int((w*.70))
+        back_width = x + int((w * .70))
         self.buildInterface((x, y, w, h))
-        surface.blit(self.buttonbar, (x+int(w*.70)+1,0))
+        surface.blit(self.buttonbar, (x + int(w * .70) + 1, 0))
 
 
     def handle_commandlist(self, cmdlist):
@@ -252,7 +252,8 @@ class VirtualAvatarElement(Element):
         pass
 
     def onClick(self, point, button):
-        print "clicked", self.avatar
+        print
+        "clicked", self.avatar
 
 
 class VirtualMapElement(Element):
@@ -269,13 +270,14 @@ class VirtualMapElement(Element):
             dx = self.camera.extent.top - self.oldExtent.top
             self.shift((-dx, -dy))
             self.oldExtent = self.camera.extent.copy()
-                
+
         self.camera.draw(surface, self.rect)
 
 
     def onClick(self, point, button):
-        print "clicked", self.viewport
-        
+        print
+        "clicked", self.viewport
+
 
     def shift(self, (x, y)):
         self.frame.shift((x, y))

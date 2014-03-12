@@ -13,26 +13,19 @@ combat:
 so, it is turn based, but with some realtime elements
 """
 
+from collections import defaultdict, deque
 
-from renderer import Camera
+from pygame import Rect, Surface
+import pygame.draw
 
 from lib2d.gui import VisualTimer
 from lib2d.gamestate import GameState
 from lib2d.cmenu import cMenu
 from lib2d.statedriver import driver as sd
-from lib2d.banner import TextBanner, OutlineTextBanner
+from lib2d.banner import TextBanner
 import lib2d.gfx as gfx
-
 from mob import Monster
 from rpg import Hero
-
-from collections import defaultdict, deque
-from math import ceil
-from random import randint
-import sys, os.path
-
-from pygame import Rect, Surface
-import pygame.draw
 
 
 class FadingText(object):

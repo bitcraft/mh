@@ -4,14 +4,12 @@ Game world for "mh"
 this will create a pickle that can be read by the library
 """
 
-from lib2d.server.area import AbstractArea, AdventureArea
+from collections import defaultdict
+
 from lib2d.common.avatar import Avatar, Animation, StaticAnimation
 from lib2d.common.objects import GameObject, AvatarObject
-from lib2d.common import res
 from lib.rpg import Hero, NPC
 from lib.buildarea import fromTMX
-
-from collections import defaultdict
 
 
 def build():

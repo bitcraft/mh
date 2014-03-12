@@ -1,6 +1,9 @@
-from lib2d.ui.element import Element
-import pygame, collections, itertools
+import collections
+import itertools
 
+import pygame
+
+from lib2d.ui.element import Element
 
 
 class GridPacker(Element):
@@ -47,19 +50,19 @@ class GridPacker(Element):
 
         elif len(self.ordered) == 2:
             w, h = self.rect.size
-            self.ordered[0].rect = pygame.Rect((0,0,w,h/2))
-            self.ordered[1].rect = pygame.Rect((0,h/2,w,h/2))
+            self.ordered[0].rect = pygame.Rect((0, 0, w, h / 2))
+            self.ordered[1].rect = pygame.Rect((0, h / 2, w, h / 2))
 
         elif len(self.ordered) == 3:
             w, h = self.rect.size
-            self.ordered[0].rect = pygame.Rect((0,0,w,h/2))
-            self.ordered[1].rect = pygame.Rect((0,h/2,w/2,h/2))
-            self.ordered[2].rect = pygame.Rect((w/2,h/2,w/2,h/2))
+            self.ordered[0].rect = pygame.Rect((0, 0, w, h / 2))
+            self.ordered[1].rect = pygame.Rect((0, h / 2, w / 2, h / 2))
+            self.ordered[2].rect = pygame.Rect((w / 2, h / 2, w / 2, h / 2))
 
         elif len(self.ordered) == 4:
             w = self.rect.width / 2
             h = self.rect.height / 2
-            self.ordered[0].rect = pygame.Rect((0,0,w,h))
-            self.ordered[1].rect = pygame.Rect((w,0,w,h))
-            self.ordered[2].rect = pygame.Rect((0,h,w,h))
-            self.ordered[3].rect = pygame.Rect((w,h,w,h))
+            self.ordered[0].rect = pygame.Rect((0, 0, w, h))
+            self.ordered[1].rect = pygame.Rect((w, 0, w, h))
+            self.ordered[2].rect = pygame.Rect((0, h, w, h))
+            self.ordered[3].rect = pygame.Rect((w, h, w, h))

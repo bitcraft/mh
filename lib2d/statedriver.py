@@ -18,12 +18,14 @@ You should have received a copy of the GNU General Public License
 along with lib2d.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import gfx
-import pygame
-from playerinput import KeyboardPlayerInput
 from collections import deque
 from itertools import cycle, islice
+
+import pygame
 from pygame.locals import *
+
+from .playerinput import KeyboardPlayerInput
+from . import gfx
 
 
 """
@@ -31,7 +33,6 @@ player's input doesn't get checked every loop.  it is checked
 every 15ms and then handled.  this prevents the game logic
 from dealing with input too often and slowing down rendering.
 """
-
 
 inputs = []
 inputs.append(KeyboardPlayerInput())
@@ -120,7 +121,7 @@ class StateDriver(object):
 
         if isinstance(state, StatePlaceholder):
             self.replace(state.klass())
-           
+
         elif not state == None:
             if state.activated:
                 state.reactivate()
@@ -224,7 +225,7 @@ class StateDriver(object):
         rawcmds = 0
         cmdlist = []
         checkedcmds = []
-        
+
         currentState = current_state()
         while currentState:
             time = clock.tick(20)
@@ -233,7 +234,7 @@ class StateDriver(object):
             while event:
 
                 # check each input for something interesting
-                for cmd in [ c.getCommand(event) for c in inputs ]:
+                for cmd in [c.getCommand(event) for c in inputs]:
                     rawcmds += 1
                     if (cmd != None) and (cmd[:2] not in checkedcmds):
                         checkedcmds.append(cmd[:2])
@@ -247,8 +248,8 @@ class StateDriver(object):
                 # do we flush input now?
                 elif event.type == pygame.USEREVENT:
                     currentState.handle_commandlist(cmdlist)
-                    [ currentState.handle_commandlist(i.getHeld())
-                    for i in inputs ]
+                    [currentState.handle_commandlist(i.getHeld())
+                     for i in inputs]
                     rawcmds = 0
                     checkedcmds = []
                     cmdlist = []

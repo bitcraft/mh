@@ -18,13 +18,12 @@ You should have received a copy of the GNU General Public License
 along with lib2d.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from lib2d.ui import Element
-from lib2d import res, banner
-
 from collections import namedtuple
-from pygame.locals import *
-import pygame
 
+from pygame.locals import *
+
+from lib2d.ui import Element
+from lib2d import banner
 
 
 def OutlinedFactory(text, font, size, color):
@@ -34,7 +33,7 @@ def OutlinedFactory(text, font, size, color):
 MenuOption = namedtuple('MenuOption', 'label callback image')
 
 
-def positionRects(rects, alignment, spacing=(0,0), origin=(0,0)):
+def positionRects(rects, alignment, spacing=(0, 0), origin=(0, 0)):
     """
     returns a list of tuples that are the top-left corner of a surface
     this list is used to correctly position images for the menu
@@ -83,21 +82,21 @@ class Menu(Element):
     """
 
     def __init__(self, h_pad, v_pad, orientation, number, option_list,
-        font=None, font_size=32, item_factory=OutlinedFactory, callback=None):
+                 font=None, font_size=32, item_factory=OutlinedFactory, callback=None):
 
         self.font = font
         self.font_size = font_size
-        self.change_number = number               # new row/col #
+        self.change_number = number  # new row/col #
         self.orientation = orientation
         self.horizontal_padding = h_pad
         self.vertical_padding = v_pad
 
-        self.selection = 0                        # The currently selected button
-        self.u_color = (230,230,230)              # Color for unselected text
-        self.s_color = (255,50,10)                # Color for selected text
+        self.selection = 0  # The currently selected button
+        self.u_color = (230, 230, 230)  # Color for unselected text
+        self.s_color = (255, 50, 10)  # Color for selected text
 
-        self.update_buttons = False               # True if the positions of the
-                                                  # buttons need to be updated
+        self.update_buttons = False  # True if the positions of the
+        # buttons need to be updated
 
         # the callback will call a function with the current selection as the
         # first argument.  useful if you want to track state of the menu in a
@@ -110,7 +109,7 @@ class Menu(Element):
         # related to each other.  It shifts the button within the bounds of
         # 'max_width' and 'max_height' in the self.position_items() method.
         self.alignment = {'vertical': 'top', 'horizontal': 'left'}
-        self.spacing = (0,0)
+        self.spacing = (0, 0)
 
         self.options = []
         for i, (label, callback) in enumerate(option_list):
@@ -130,11 +129,11 @@ class Menu(Element):
 
     def draw(self, surface):
         if self.update_buttons:
-            rects = [ o.image.get_rect() for o in self.options ]
+            rects = [o.image.get_rect() for o in self.options]
             self.points = positionRects(rects, self.alignment, self.spacing, self.rect.topleft)
             self.update_buttons = False
 
-        return [ surface.blit(o.image, self.points[i]) for i, o in enumerate(self.options) ]
+        return [surface.blit(o.image, self.points[i]) for i, o in enumerate(self.options)]
 
 
     def handle_event(self, event):

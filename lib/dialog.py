@@ -18,19 +18,19 @@ You should have received a copy of the GNU General Public License
 along with lib2d.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from lib2d.buttons import *
-from lib2d.banner import TextBanner, OutlineTextBanner
-from lib2d.cmenu import cMenu 
-from lib2d.gamestate import GameState
-from lib2d.statedriver import driver as sd
-from lib2d import res, gui
+from textwrap import wrap
 
 from pygame.locals import *
 from pygame.surface import Surface
 import pygame.draw as draw
 import pygame
 
-from textwrap import wrap
+from lib2d.buttons import *
+from lib2d.banner import TextBanner, OutlineTextBanner
+from lib2d.cmenu import cMenu
+from lib2d.gamestate import GameState
+from lib2d.statedriver import driver as sd
+from lib2d import res, gui
 
 
 class TextDialog(GameState):
@@ -173,7 +173,7 @@ class ChoiceDialog(GameState):
                 self.bkg = self.bkg.convert()
             elif self.counter == 7:
                 surface.fill((128,128,128), (14, 146, self.bkg.get_size()))
-                print "fill"
+                print("fill")
                 self.counter = 0
                 self.state = 1
                 self.bkg = None

@@ -18,12 +18,13 @@ You should have received a copy of the GNU General Public License
 along with lib2d.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import gfx
-import pygame
-from lib2d.objects import GameObject
 from collections import deque
 from itertools import cycle, islice
+
+import pygame
 from pygame.locals import *
+
+import gfx
 
 
 """
@@ -31,9 +32,6 @@ player's input doesn't get checked every loop.  it is checked every 15ms and
 then handled.  this prevents the game logic from dealing with input too often
 and slowing down rendering.
 """
-
-
-
 
 
 class Context(object):
@@ -53,7 +51,7 @@ class Context(object):
 
         Ideally, any initialization will be handled in activate() since
         that is the point when assets will be required.
-        """        
+        """
 
         self.parent = parent
         self.activated = False
@@ -106,7 +104,7 @@ class Context(object):
         """
         Called when there is an input command to process
         """
- 
+
         pass
 
 
@@ -155,7 +153,6 @@ class ContextDriver(object):
         self.inputs = []
 
         self.lameduck = None
-
 
         if parent != None:
             self.reload_screen()
@@ -285,7 +282,7 @@ class ContextDriver(object):
         # make sure our custom events will be triggered
         pygame.event.set_allowed([debug_output])
 
-        currentState = current_state()       
+        currentState = current_state()
         lastState = currentState
 
         # this will loop until the end of the program
@@ -310,8 +307,8 @@ class ContextDriver(object):
             time = clock.tick(self.target_fps)
 
 
-# =============================================================================
-# EVENT HANDLING ==============================================================
+            # =============================================================================
+            # EVENT HANDLING ==============================================================
 
             event = event_poll()
             while event:
@@ -322,12 +319,13 @@ class ContextDriver(object):
                     break
 
                 # check each input for something interesting
-                for cmd in [ c.getCommand(event) for c in self.inputs ]:
+                for cmd in [c.getCommand(event) for c in self.inputs]:
                     if cmd is not None:
                         currentState.handle_command(cmd)
 
                 if event.type == debug_output:
-                    print "current FPS: \t{0:.1f}".format(clock.get_fps())
+                    print
+                    "current FPS: \t{0:.1f}".format(clock.get_fps())
 
                 # back out of this state, or send event to the state
                 elif event.type == KEYDOWN:
@@ -337,8 +335,8 @@ class ContextDriver(object):
 
                 event = event_poll()
 
-# =============================================================================
-# STATE UPDATING AND DRAWING HANDLING =========================================
+            # =============================================================================
+            # STATE UPDATING AND DRAWING HANDLING =========================================
 
             if current_state() is currentState:
 

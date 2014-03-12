@@ -18,15 +18,12 @@ You should have received a copy of the GNU General Public License
 along with lib2d.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-
-from objects import GameObject
-import res
+from math import pi, ceil
 
 import pygame
-import sys
-from math import pi, radians, ceil
-from itertools import product
-from random import randint
+
+from .objects import GameObject
+from . import res
 
 
 pi2 = pi * 2
@@ -41,16 +38,16 @@ class Avatar(GameObject):
 
     def __init__(self):
         GameObject.__init__(self)
-        self.default      = None
-        self.callback     = None    # called when animation finishes
-        self.curImage     = None    # cached for drawing ops
-        self.curFrame     = None    # current frame number
+        self.default = None
+        self.callback = None  # called when animation finishes
+        self.curImage = None  # cached for drawing ops
+        self.curFrame = None  # current frame number
         self.curAnimation = None
-        self.animations   = {}
+        self.animations = {}
         self.loop_frame = 0
-        self.looped     = 0
-        self.loop       = -1
-        self.timer      = 0
+        self.looped = 0
+        self.loop = -1
+        self.timer = 0
         self._prevAngle = None
         self._prevFrame = None
         self._is_paused = False
@@ -66,11 +63,11 @@ class Avatar(GameObject):
             self.curImage = self.curAnimation.getImage(self.curFrame, angle)
 
         elif not self.curFrame == self._prevFrame:
-            self.curImage = self.curAnimation.getImage(self.curFrame, angle) 
+            self.curImage = self.curAnimation.getImage(self.curFrame, angle)
 
         elif self.curImage == None:
-            self.curImage = self.curAnimation.getImage(self.curFrame, angle) 
-   
+            self.curImage = self.curAnimation.getImage(self.curFrame, angle)
+
 
     def get_rect(self):
         self._updateCache()
@@ -93,7 +90,7 @@ class Avatar(GameObject):
         self._updateCache()
         return self.curImage
 
-    @property    
+    @property
     def visible(self):
         return self._is_visible
 
@@ -197,7 +194,7 @@ class Avatar(GameObject):
         set the frame of the animation
         frame should be 0-indexed number of frame to show
         """
-         
+
         self._prevFrame = frame
         self.curFrame = frame
 
@@ -226,7 +223,7 @@ class Avatar(GameObject):
         self.loop = loop
         self.loop_frame = loop_frame
         self.paused = False
-        self.timer  = 0
+        self.timer = 0
         self.looped = 0
 
         if callback:
@@ -240,7 +237,7 @@ class Avatar(GameObject):
             self.animations[other.name] = other
             if self.default == None:
                 self.setDefault(other)
-            
+
         GameObject.add(self, other)
 
 
@@ -320,17 +317,18 @@ class Animation(GameObject):
 
         image = res.loadImage(self.filename, 0, 1)
         iw, ih = image.get_size()
-        tw = iw / self.real_frames
-        th = ih / self.directions
+        tw = int(iw / self.real_frames)
+        th = int(ih / self.directions)
         self.images = [None] * (self.directions * self.real_frames)
-       
+
         d = 2
         for y in range(0, ih, th):
             d += 1
-            if d == ih/th: d = 0
+            if d == ih / th: d = 0
             for x in range(0, iw, tw):
                 frame = image.subsurface((x, y, tw, th))
-                self.images[(x/tw)+d*self.real_frames] = frame
+                idx = int((x / tw) + d * self.real_frames)
+                self.images[idx] = frame
 
         if isinstance(self.timing, int):
             self.timing = [self.timing] * self.frames
@@ -357,10 +355,11 @@ class Animation(GameObject):
             number = self.order[number]
 
         try:
-            return self.images[number+d*self.real_frames]
+            return self.images[number + d * self.real_frames]
         except IndexError:
-            msg="Cannot find image for animation, direction should be radians"
-            raise ValueError, msg
+            msg = "Cannot find image for animation, direction should be radians"
+            print(msg)
+            raise ValueError
 
 
     def __repr__(self):
@@ -394,15 +393,15 @@ class StaticAnimation(Animation):
         """
 
         image = res.loadImage(self.filename, 0, 1)
-      
+
         if self.tile:
             x, y = self.tile
             x *= self.size[0]
             y *= self.size[1]
             self.image = pygame.Surface(self.size)
-            self.image.blit(image,(0,0),area=(x,y, self.size[0], self.size[1]))
-            self.image.set_colorkey(self.image.get_at((0,0)))
- 
+            self.image.blit(image, (0, 0), area=(x, y, self.size[0], self.size[1]))
+            self.image.set_colorkey(self.image.get_at((0, 0)))
+
         else:
             self.image = image
 

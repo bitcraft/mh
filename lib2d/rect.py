@@ -1,8 +1,8 @@
 def intersect(r1, r2):
-    return (((r1.left >= r2.left and r1.left < r2.right)  or 
+    return (((r1.left >= r2.left and r1.left < r2.right) or
              (r2.left >= r1.left and r2.left < r1.right)) and
-             ((r1.top >= r2.top  and r1.top  < r2.bottom) or
-              (r2.top >= r1.top  and r2.top  < r1.bottom)))
+            ((r1.top >= r2.top and r1.top < r2.bottom) or
+             (r2.top >= r1.top and r2.top < r1.bottom)))
 
 
 class Rect(object):
@@ -37,8 +37,9 @@ class Rect(object):
         else:
             self._x, self._y, self._w, self._h = arg
 
- 
-    def __len__(self): return 4
+
+    def __len__(self):
+        return 4
 
 
     def __getitem__(self, key):
@@ -63,7 +64,7 @@ class Rect(object):
 
     def inflate(self, x, y):
         return Rect((self._x - x / 2, self._y - y / 2,
-                     self._w + x,     self._h + y))
+                     self._w + x, self._h + y))
 
 
     def clamp(self):
@@ -78,13 +79,13 @@ class Rect(object):
         return Rect((min(self._x, other.left), min(self._y, other.top),
                      max(self._w, other.right), max(self._h, other.height)))
 
- 
+
     def unionall(self, *rects):
         rects.append(self)
-        left   = min([ r.left for r in rects ])
-        top    = min([ r.top for r in rects ])
-        right  = max([ r.right for r in rects ]) 
-        bottom = max([ r.bottom for r in rects ])
+        left = min([r.left for r in rects])
+        top = min([r.top for r in rects])
+        right = max([r.right for r in rects])
+        bottom = max([r.bottom for r in rects])
         return Rect(left, top, right, bottom)
 
 
@@ -128,7 +129,7 @@ class Rect(object):
 
 
     def collidelistall(self, l):
-        return [ i for i, rect in enumerate(l) if intersect(self, Rect(rect)) ]
+        return [i for i, rect in enumerate(l) if intersect(self, Rect(rect))]
 
 
     def collidedict(self):

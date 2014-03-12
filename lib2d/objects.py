@@ -1,18 +1,13 @@
-import res
-
-
-
 def loadObject(name):
     """
     read this node from disk
     """
+    import pickle
 
-    import cPickle as pickle
-
-    with open(name + "-index.txt") as fh:
+    with open(name + "-index.txt", "rb") as fh:
         toc = pickle.load(fh)
 
-    with open(name + "-data.txt") as fh:
+    with open(name + "-data.txt", "rb") as fh:
         node = pickle.load(fh)
 
     return node
@@ -32,12 +27,12 @@ class GameObject(object):
     def __init__(self, parent=None):
         self.short_name = str(self.__class__)
         self.short_desc = ""
-        self.long_desc  = ""
-        self.name       = ""
-        self.pushable   = False
-        self.weight     = 1
-        self._children  = []
-        self._parent    = parent
+        self.long_desc = ""
+        self.name = ""
+        self.pushable = False
+        self.weight = 1
+        self._children = []
+        self._parent = parent
         self._childrenGUID = []  # children of this object by guid !dont use
         self.guid = None
 
@@ -51,7 +46,8 @@ class GameObject(object):
             return self.__class__()
         except TypeError:
             msg = "Class {} is not cabable of being copied."
-            raise TypeError, msg.format(self.__class__)
+            print(msg.format(self.__class__))
+            raise TypeError
 
 
     def copy(self):
@@ -66,7 +62,7 @@ class GameObject(object):
         for child in self._children:
             new.add(child.copy())
 
-        return new 
+        return new
 
 
     def update(self, time):
@@ -89,7 +85,7 @@ class GameObject(object):
         # override this for objects that can contain other types
         if what == None: what = self._parent
         return self._parent.getSize(what)
-        
+
 
     @property
     def parent(self):
@@ -118,7 +114,8 @@ class GameObject(object):
         try:
             self.guid = int(guid)
         except:
-            raise ValueError, "GUID's must be an integer"
+            print("GUID's must be an integer")
+            raise ValueError
 
 
     def setName(self, name):
@@ -167,13 +164,13 @@ class GameObject(object):
         search the children of this object for an object
         with the matching guid
         """
-       
-        guid = int(guid) 
+
+        guid = int(guid)
         for child in self.getChildren():
             if child.guid == guid: return child
 
-        msg = "GUID ({}) not found."
-        raise Exception, msg.format(guid)
+        print(msg.format(guid))
+        raise Exception
 
 
     def get_flag(self):
@@ -204,7 +201,7 @@ class GameObject(object):
 
         # last chance we have to make sure children can be accessed in another
         # life!
-        self.childrenGUID = [ c.guid for c in self._children ]
+        self.childrenGUID = [c.guid for c in self._children]
 
         pickler.dump(self)
 
@@ -251,11 +248,11 @@ class GameObject(object):
         it will be a pair of files.
         """
 
-        import cPickle as pickle
+        import pickle
 
         # generate unique ID's for all the objects (if not already assigned)
         i = 0
-        used = set([ child.guid for child in self.getChildren() ])
+        used = set([child.guid for child in self.getChildren()])
         used.add(self.guid)
         for child in self.getChildren():
             if child.guid: continue
@@ -265,14 +262,15 @@ class GameObject(object):
             used.add(i)
 
         toc = {}
+
         def handleWrite(obj, pickler):
             toc[obj.guid] = fh.tell()
 
-        with open(name + "-data.txt", "w") as fh:
+        with open(name + "-data.txt", "wb") as fh:
             pickler = pickle.Pickler(fh, -1)
             self.serialize(pickler, handleWrite)
 
-        with open(name + "-index.txt", "w") as fh:
+        with open(name + "-index.txt", "wb") as fh:
             pickler = pickle.Pickler(fh, -1)
             pickler.dump(toc)
 
@@ -284,7 +282,7 @@ class AvatarObject(GameObject):
 
 
     def add(self, other):
-        from avatar import Avatar
+        from .avatar import Avatar
 
         if isinstance(other, Avatar):
             self._avatar = other
@@ -292,7 +290,7 @@ class AvatarObject(GameObject):
         GameObject.add(self, other)
 
 
-    @property    
+    @property
     def avatar(self):
         return self._avatar
 
@@ -307,6 +305,6 @@ class AvatarObject(GameObject):
         self._avatar = avatar
         self.add(avatar)
 
-    
+
     def stop(self):
         pass

@@ -1,10 +1,11 @@
 def intersect(a, b):
-    return (((a.back   >= b.back   and a.back   < b.front)   or
-             (b.back   >= a.back   and b.back   < a.front))  and
-            ((a.left   >= b.left   and a.left   < b.right)   or 
-             (b.left   >= a.left   and b.left   < a.right))  and
-            ((a.bottom >= b.bottom and a.bottom < b.top)     or
+    return (((a.back >= b.back and a.back < b.front) or
+             (b.back >= a.back and b.back < a.front)) and
+            ((a.left >= b.left and a.left < b.right) or
+             (b.left >= a.left and b.left < a.right)) and
+            ((a.bottom >= b.bottom and a.bottom < b.top) or
              (b.bottom >= a.bottom and b.bottom < a.top)))
+
 
 # BUG: collisions on right side are not correct
 
@@ -46,15 +47,17 @@ class BBox(object):
             try:
                 self._x, self._y, self._z, self._w, self._h, self._d = arg
             except:
-                raise ValueError, arg
+                print(arg)
+                raise ValueError
 
 
     def __repr__(self):
         return "<bbox: {} {} {} {} {} {}>".format(
             self._x, self._y, self._z, self._w, self._h, self._d)
 
- 
-    def __len__(self): return 6
+
+    def __len__(self):
+        return 6
 
 
     def __getitem__(self, key):
@@ -71,7 +74,8 @@ class BBox(object):
             return self._h
         elif key == 5:
             return self._d
-        raise IndexError, key
+        print(key)
+        raise IndexError
 
 
     def copy(self):
@@ -80,12 +84,12 @@ class BBox(object):
 
     def move(self, x, y, z):
         return BBox(self._x + x, self._y + y, self._z + z,
-                      self._w,     self._h,     self._d)
+                    self._w, self._h, self._d)
 
 
     def inflate(self, x, y):
-        return Rect((self._x - x / 2, self._y - y / 2, self._z - z /2,
-                     self._w + x,     self._h + y,     self._d + z))
+        return Rect((self._x - x / 2, self._y - y / 2, self._z - z / 2,
+                     self._w + x, self._h + y, self._d + z))
 
 
     def clamp(self):
@@ -100,15 +104,15 @@ class BBox(object):
         return Rect((min(self._x, other.left), min(self._y, other.top),
                      max(self._w, other.right), max(self._h, other.height)))
 
- 
+
     def unionall(self, *rects):
         rects.append(self)
-        front  = min([ r.front for r in rects ])
-        left   = min([ r.left for r in rects ])
-        bottom = min([ r.bottom for r in rects ])
-        back   = max([ r.back for r in rects ]) 
-        right  = max([ r.right for r in rects ])
-        top    = max([ r.top for r in rects ])
+        front = min([r.front for r in rects])
+        left = min([r.left for r in rects])
+        bottom = min([r.bottom for r in rects])
+        back = max([r.back for r in rects])
+        right = max([r.right for r in rects])
+        top = max([r.top for r in rects])
         return Rect(front, left, bottom, depth, width, height)
 
 
@@ -141,8 +145,9 @@ class BBox(object):
                 (self._z + self._d > other.front))
 
 
-    def collidepoint(self, (x, y, z)):
-        return (x >= self._x and x < self._x + self._w and 
+    def collidepoint(self, coords):
+        x, y, z = coords
+        return (x >= self._x and x < self._x + self._w and
                 y >= self._y and y < self._y + self._h and
                 z >= self._z and z < self._z + self._z)
 
@@ -154,14 +159,15 @@ class BBox(object):
     def collidelist(self, l):
         for i, bbox in enumerate(l):
             if intersect(self, bbox):
-                print i, bbox
+                print
+                i, bbox
                 return i
         return -1
 
 
     def collidelistall(self, l):
-        return [ i for i, bbox in enumerate(l)
-                if intersect(self, bbox) ]
+        return [i for i, bbox in enumerate(l)
+                if intersect(self, bbox)]
 
 
     def collidedict(self):
@@ -214,7 +220,7 @@ class BBox(object):
 
     @property
     def bottomcenter(self):
-        return self._x + self._d / 2, self._y + self._w /2, self._z
+        return self._x + self._d / 2, self._y + self._w / 2, self._z
 
 
     @property

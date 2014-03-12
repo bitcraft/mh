@@ -1,13 +1,14 @@
+import os
+
+import pygame
+
 from lib.levelstate import LevelState
 from lib import world
-
 from lib2d.gamestate import GameState
 from lib2d.cmenu import cMenu
 from lib2d.statedriver import driver as sd
 from lib2d.objects import loadObject
 from lib2d import res, gui
-
-import pygame, os
 
 
 hints = """You must defeat the evil scientist in the lower levels!

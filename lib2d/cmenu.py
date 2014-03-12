@@ -18,12 +18,10 @@ You should have received a copy of the GNU General Public License
 along with lib2d.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import res
-from banner import OutlineTextBanner, TextBanner
-
-import pygame
 from pygame.locals import *
 
+from . import res
+from .banner import OutlineTextBanner, TextBanner
 
 
 class OutlineMenuItem(OutlineTextBanner):
@@ -41,48 +39,46 @@ class MenuItem(TextBanner):
 
 
 class cMenu():
-
     move_sound = res.loadSound("bump0.wav")
     select_sound = res.loadSound("select1.wav")
 
     def __init__(self, rect, h_pad, v_pad, orientation, number, button_list,
-        font=None, font_size=32, banner_style="outline", callback=None):
+                 font=None, font_size=32, banner_style="outline", callback=None):
 
         ## menu items
-        self.menu_items = []                      # List of menu items
-        self.font = font                          # Font to use
+        self.menu_items = []  # List of menu items
+        self.font = font  # Font to use
         self.font_size = font_size
 
-        self.rect = rect                          # Top left corner (of surface)
-        self.change_number = number               # new row/col #
+        self.rect = rect  # Top left corner (of surface)
+        self.change_number = number  # new row/col #
         self.orientation = orientation
         self.horizontal_padding = h_pad
         self.vertical_padding = v_pad
 
-        self.selection = 0                        # The currently selected button
-        self.u_color = (230,230,230)              # Color for unselected text
-        self.s_color = (255,50,10)                # Color for selected text
+        self.selection = 0  # The currently selected button
+        self.u_color = (230, 230, 230)  # Color for unselected text
+        self.s_color = (255, 50, 10)  # Color for selected text
 
-        self.centered = False                     # True if the menu is centered
-        self.update_buttons = False               # True if the positions of the
-                                                  # buttons need to be updated
+        self.centered = False  # True if the menu is centered
+        self.update_buttons = False  # True if the positions of the
+        # buttons need to be updated
 
         # the callback will call a function with the current selection as the
         # first argument.  useful if you want to track state of the menu in a
         # sane way.  you could constantly poll, selection, but this is better.
         self.callback = callback
 
-        self.banner_style = banner_style          # type of font to use
+        self.banner_style = banner_style  # type of font to use
         self.dirty = True
 
         # This dictionary contains the alignment orientation of the buttons
         # related to each other.  It shifts the button within the bounds of
         # 'max_width' and 'max_height' in the self.position_items() method.
-        self.alignment = {'vertical'  :'top',
-                                'horizontal':'left'}
+        self.alignment = {'vertical': 'top',
+                          'horizontal': 'left'}
 
-
-        [ self.add_button(self.create_button(*i[:2])) for i in button_list ]
+        [self.add_button(self.create_button(*i[:2])) for i in button_list]
         self.update_buttons = True
 
     def disable(self, i):
@@ -113,7 +109,7 @@ class cMenu():
             self.render()
             self.update_buttons = False
 
-        [ surface.blit(b.image, b.rect) for b in self.menu_items ]
+        [surface.blit(b.image, b.rect) for b in self.menu_items]
 
     @property
     def drawables(self):
@@ -123,39 +119,39 @@ class cMenu():
         # grey-out disabled menu items
         for b in self.menu_items:
             if b.disabled:
-                b.color = (80,80,80)
+                b.color = (80, 80, 80)
             else:
-                b.render()        
+                b.render()
         self.dirty = True
 
     def set_padding(self, h_pad, v_pad):
         self.horizontal_padding = h_pad
-        self.vertical_padding   = v_pad
+        self.vertical_padding = v_pad
         self.update_buttons = True
 
     def set_orientation(self, new_orientation):
         if new_orientation == 'vertical' or new_orientation == 'horizontal':
-                self.orientation = new_orientation
-                self.update_buttons = True
+            self.orientation = new_orientation
+            self.update_buttons = True
         else:
-                print 'WARNING:  cMenu.set_orientation:  Invalid argument '\
-                    'new_orientation (value: %d)' % new_orientation
+            print('WARNING:  cMenu.set_orientation:  Invalid argument ' \
+                  'new_orientation (value: %d)' % new_orientation)
 
     def set_font(self, font):
         self.font = font
-        [ item.set_font(font) for item in self.menu_items ]
+        [item.set_font(font) for item in self.menu_items]
 
     def set_alignment(self, v_align, h_align):
         if v_align in ['top', 'center', 'bottom']:
-                self.alignment['vertical'] = v_align
+            self.alignment['vertical'] = v_align
         if h_align in ['left', 'center', 'right']:
-                self.alignment['horizontal'] = h_align
+            self.alignment['horizontal'] = h_align
         self.update_buttons = True
 
     def remove_buttons(self, indexList):
         for index in indexList:
-                if len(self.menu_items) > 1:
-                    self.menu_items.pop(index)
+            if len(self.menu_items) > 1:
+                self.menu_items.pop(index)
         self.update_buttons = True
 
     def create_button(self, text, callback, color=None):
@@ -181,7 +177,7 @@ class cMenu():
 
         # Get the maximum width and height of the surfaces
         for item in self.menu_items:
-            max_width  = max(item.rect.width, max_width)
+            max_width = max(item.rect.width, max_width)
             max_height = max(item.rect.height, max_height)
 
         # Position the button in relation to each other
@@ -190,7 +186,7 @@ class cMenu():
             if self.alignment['vertical'] == 'top':
                 offset_height = 0
             elif self.alignment['vertical'] == 'center':
-                offset_height = (max_height - item.rect.height)/2
+                offset_height = (max_height - item.rect.height) / 2
             elif self.alignment['vertical'] == 'bottom':
                 offset_height = (max_height - item.rect.height)
 
@@ -198,7 +194,7 @@ class cMenu():
             if self.alignment['horizontal'] == 'left':
                 offset_width = 0
             elif self.alignment['horizontal'] == 'center':
-                offset_width = (max_width - item.rect.width)/2
+                offset_width = (max_width - item.rect.width) / 2
             elif self.alignment['horizontal'] == 'right':
                 offset_width = (max_width - item.rect.width)
 
@@ -268,7 +264,7 @@ class cMenu():
         self.check_disabled(d)
 
         if self.selection >= len(self.menu_items):
-            self.selection = len(self.menu_items) -1
+            self.selection = len(self.menu_items) - 1
 
         elif self.selection < 0:
             self.selection = 0

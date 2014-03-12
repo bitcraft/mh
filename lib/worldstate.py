@@ -1,17 +1,15 @@
-from renderer import AreaCamera
-from rpg import GRAB, LIFT
+from math import sqrt, atan2
 
+import pygame
+
+from .renderer import AreaCamera
 from lib2d.gamestate import GameState
 from lib2d.statedriver import driver as sd
 from lib2d.buttons import *
 from lib2d.vec import Vec2d
 from lib2d.quadtree import QuadTree, FrozenRect
-from lib2d import tmxloader, res, gui
-
-from math import sqrt, atan2
-from operator import itemgetter
-import pygame
-import os.path
+from lib2d import res, gui
+import pytmx
 
 debug = 1
 
@@ -123,7 +121,7 @@ class WorldState(GameState):
             self.area.add(self.hero)
 
         # load the tmx data here.  it will be shared with the camera.
-        self.tmxdata = tmxloader.load_pygame(
+        self.tmxdata = pytmx.load_pygame(
                        self.area.mappath, force_colorkey=(128,128,0))
 
         # attach a camera
@@ -324,14 +322,16 @@ class WorldState(GameState):
                 """
 
 
-    def tileToWorld(self, (x, y, l)):
+    def tileToWorld(self, coords):
+        x, y, l = coords
         xx = int(y) * self.tmxdata.tilewidth
         yy = int(x) * self.tmxdata.tileheight
         return xx, yy, l
 
 
-    def worldToTile(self, (x, y, l)):
+    def worldToTile(self, coords):
         # return the tile position of an object
+        x, y, l = coords
         xx = int(y) / self.tmxdata.tilewidth
         yy = int(x) / self.tmxdata.tileheight
         return xx, yy, 0

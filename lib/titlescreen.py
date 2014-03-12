@@ -1,25 +1,19 @@
+from random import uniform
+from itertools import cycle
+from threading import Thread
+import queue
+
+from pygame import Rect, Surface
+
 from lib2d.gamestate import GameState
 from lib2d.cmenu import cMenu
-from lib2d.tilemap import BufferedTilemapRenderer
 from lib2d.statedriver import driver as sd
 from lib2d.banner import TextBanner
 from lib2d.subpixelsurface import SubPixelSurface
 from lib2d.objects import loadObject
 from lib2d import res
-
-from pygame import Rect, Surface
-import pygame
-
-from worldstate import WorldState
-from cutscene import Cutscene
-
-from collections import deque
-from random import randint, random, uniform
-from itertools import cycle
-from threading import Thread
-from Queue import Queue as queue
-from Queue import Empty
-import os.path, time
+from .worldstate import WorldState
+from .cutscene import Cutscene
 
 
 class SubPixelThread(Thread):
@@ -65,8 +59,8 @@ class TitleScreen(GameState):
         self.change_delay = 8000        # seconds until map moves to next point
         self.map_fadeout = 60.0         # must be a float
         self.last_update = 0
-        self.surfaceQueue = queue()
-        self.subpixelQueue = queue()
+        self.surfaceQueue = queue.Queue()
+        self.subpixelQueue = queue.Queue()
 
         self.hotspots = cycle(([300,500], [750, 800], [350, 260], [700, 340], [120, 1000], [800, 830], [480, 900]))
         
@@ -111,7 +105,7 @@ class TitleScreen(GameState):
 
         try:
             image = self.subpixelQueue.get(0)
-        except Empty:
+        except queue.Empty:
             pass
 
         else:

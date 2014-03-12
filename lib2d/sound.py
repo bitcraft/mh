@@ -1,10 +1,10 @@
 from lib2d import res
-import pygame
 
 
 """
 lazy sound loading
 """
+
 
 def get_defaults():
     return res.defaults.__dict__.copy()

@@ -28,15 +28,18 @@ usage:
 when input is recv'd, call process with the input
 """
 
-from lib2d.buttons import *
+from collections import namedtuple
+
 from flags import *
-from collections import deque, namedtuple
 
 
 DEBUG = False
 
+
 def debug(message):
-    if DEBUG: print message
+    if DEBUG: print
+    message
+
 
 class Stack(list):
     def eject(self, cls):
@@ -70,8 +73,8 @@ class fsa(object):
         self.button_combos = []
         self.move_history = []
         self.button_history = []
-        self.holds = {}         # keep track of state changes from holds
-        self.hold = 0           # keep track of buttons held down
+        self.holds = {}  # keep track of state changes from holds
+        self.hold = 0  # keep track of buttons held down
         self.time = 0
         self.all_stacks = [[]]
 
@@ -208,7 +211,7 @@ class fsa(object):
 
                     # queued transitions are placed before the current state
                     self.push_state(new_state, trigger,
-                        queue=transition.flags & QUEUED == QUEUED)
+                                    queue=transition.flags & QUEUED == QUEUED)
 
                     # support 'toggled' transitions
                     if transition.alt_trigger is not None:
@@ -241,5 +244,5 @@ class fsa(object):
 
     def update(self, time):
         self.time += time
-        [ i.update(time) for i in self.current_stack ]
+        [i.update(time) for i in self.current_stack]
 

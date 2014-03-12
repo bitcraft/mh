@@ -1,10 +1,12 @@
-from lib2d import res
 import pygame
+
+from lib2d import res
 
 
 """
 lazy image loading
 """
+
 
 def get_defaults():
     return res.defaults.__dict__.copy()
@@ -44,10 +46,10 @@ class ImageTile(object):
         else:
             surface = self.image.load()
         temp = pygame.Surface(self.tilesize).convert(surface)
-        temp.blit(surface, (0,0),
+        temp.blit(surface, (0, 0),
                   ((self.tilesize[0] * self.tile[0],
                     self.tilesize[1] * self.tile[1]),
-                    self.tilesize))
+                   self.tilesize))
         if self.image.kwargs['colorkey']:
-            temp.set_colorkey(temp.get_at((0,0)), pygame.RLEACCEL)
+            temp.set_colorkey(temp.get_at((0, 0)), pygame.RLEACCEL)
         return temp

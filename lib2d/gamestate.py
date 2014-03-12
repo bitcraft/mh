@@ -34,8 +34,7 @@ class GameState(object):
 
         Ideally, any initialization will be handled in activate() since
         that is the point when assets will be required.
-        """        
-
+        """
 
         self.activated = False
 
@@ -108,7 +107,7 @@ class GameState(object):
         """
         Called when there is an input command to process
         """
- 
+
         pass
 
 

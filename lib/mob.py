@@ -3,17 +3,13 @@
 
 """
 
-from rpg import LivingObject
-from mdna import mDNA, random_beast
-
-from lib2d.vec import Vec2d
+from math import cos, sin, radians, degrees
 
 from pygame.surface import Surface
 from pygame.rect import Rect
 from pygame import draw, Color
 
-from math import cos, sin, radians, degrees
-from random import randint
+from rpg import LivingObject
 
 
 raw_colors = [(125,32,40), (32,64,128), (20,20,200), (200,200,40), \

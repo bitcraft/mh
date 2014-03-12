@@ -86,12 +86,10 @@ gene_code = {
 
 gene_code_r = dict([(v, k) for (k, v) in gene_code.iteritems()])
 
-import struct
 import random
 import math
 import base64
-from gzip import GzipFile
-from StringIO import StringIO
+
 
 class mDNA(object):
     def __init__(self, d, g):

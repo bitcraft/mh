@@ -17,14 +17,14 @@ You should have received a copy of the GNU General Public License
 along with lib2d.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import res
-
 from pygame import Color
 import pygame
-import os
+
+from . import res
 
 
 pygame.font.init()
+
 
 class TextBanner(object):
     """
@@ -36,19 +36,19 @@ class TextBanner(object):
     to make blitting pretty
     """
 
-    def __init__(self, text, color=[0,0,0], size=12, font=None):
+    def __init__(self, text, color=[0, 0, 0], size=12, font=None):
         super(TextBanner, self).__init__()
 
         self._font_size = size
-        self._text      = text
-        self._color     = color
-        self._rect = pygame.rect.Rect(0,0,0,0)
+        self._text = text
+        self._color = color
+        self._rect = pygame.rect.Rect(0, 0, 0, 0)
 
         if font == None:
             font = res.defaultFont()
-            self._font      = pygame.font.Font(font, size)
+            self._font = pygame.font.Font(font, size)
             self._font_name = font
-                
+
         else:
             if isinstance(font, str):
                 fullpath = res.fontPath(font)
@@ -77,7 +77,7 @@ class TextBanner(object):
         self._font = pygame.font.Font(font, self.font_size)
         self._font_name = font
         self.dirty = 1
-        
+
     font = property(get_font, set_font)
 
     def get_font_size(self):
@@ -122,15 +122,16 @@ class TextBanner(object):
             self._rect.size = self._image.get_rect().size
             return self._image
         except AttributeError:
-            print "font not set correctly"
+            print("font not set correctly")
             raise
 
         self.dirty = 0
 
+
 class OutlineTextBanner(TextBanner):
-    colorkey = (90,0,0)
+    colorkey = (90, 0, 0)
     border = 3
-    border_color = (0,0,0)
+    border_color = (0, 0, 0)
 
     def render(self, bkg=None, alpha=False):
         try:
@@ -152,27 +153,28 @@ class OutlineTextBanner(TextBanner):
                 inner_font = pygame.font.Font(self._font_name, self.font_size - 4)
 
             # render the text for the border 
-           
+
             text = inner_font.render(self.text, False, self.border_color)
 
             # build a border for the text by blitting it in a circle
-            for x in xrange(self.border + 2):
-                for y in xrange(self.border + 2):
+            for x in range(self.border + 2):
+                for y in range(self.border + 2):
                     s.blit(text, (x, y))
 
             # render the innner portion of the banner
             text = inner_font.render(self.text, False, self._color)
 
             # blit the text over the border
-            s.blit(text, (2,2))
+            s.blit(text, (2, 2))
 
             self._image = s.convert()
             self._rect.size = self._image.get_rect().size
 
             return self._image
         except AttributeError:
-            print "font not set correctly"
+            print("1")
             raise
+
 
 class RetroOutlineTextBanner(OutlineTextBanner):
     """
@@ -184,6 +186,6 @@ class RetroOutlineTextBanner(OutlineTextBanner):
         super(RetroOutlineTextBanner, self).render(bkg, alpha)
 
         w, h = self.image.get_size()
-        self._image = pygame.transform.scale(self._image, (int(w/2), h))
+        self._image = pygame.transform.scale(self._image, (int(w / 2), h))
         self._image = pygame.transform.scale(self._image, (w, h)).convert()
 

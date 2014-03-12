@@ -18,16 +18,12 @@ You should have received a copy of the GNU General Public License
 along with lib2d.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from lib2d.gamestate import GameState
-from lib2d.buttons import *
-from lib2d.statedriver import driver as sd
-from lib2d import res
 import pygame
 
-from dialog import TextDialog 
-
-import os.path
-
+from lib2d.gamestate import GameState
+from lib2d.statedriver import driver as sd
+from lib2d import res
+from .dialog import TextDialog
 
 
 class Cutscene(GameState):

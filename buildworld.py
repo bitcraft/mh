@@ -10,7 +10,6 @@ pygame.mixer.init()
 from lib2d.env import Environment, Area
 from lib2d.avatar import Avatar, Animation, StaticAnimation
 from lib2d.objects import AvatarObject
-from lib2d import res, tmxloader
 from lib.rpg import Hero, NPC
 
 from collections import defaultdict
@@ -195,16 +194,11 @@ allExits = defaultdict(list)
 for area in allAreas:
     for guid in area.exits.keys():
         allExits[guid].append(area)
-        print guid, area
 
 # set the exits properly
 for guid, areaList in allExits.items():
     if len(areaList) == 2:
         areaList[0].exits[guid] = (areaList[0].exits[guid][0], areaList[1].guid)
         areaList[1].exits[guid] = (areaList[1].exits[guid][0], areaList[0].guid)
-
-        print areaList[0], areaList[0].exits
-        print areaList[1], areaList[1].exits
-
 
 uni.save("mh")

@@ -1,7 +1,6 @@
 from lib2d.ui.element import Element
 
 
-
 class Frame(Element):
     def __init__(self, frame, packer):
         Element.__init__(self, frame)
@@ -26,4 +25,4 @@ class Frame(Element):
 
 
     def draw(self, surface):
-        return [ e.draw(surface) for e in self.packer.elements ]
+        return [e.draw(surface) for e in self.packer.elements]

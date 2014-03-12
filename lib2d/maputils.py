@@ -1,4 +1,3 @@
-import gfx
 from pygame import Rect
 
 
@@ -47,10 +46,10 @@ def simplify(all_points, tilewidth, tileheight):
     """
 
     def pick_rect(points, rects):
-        ox, oy = sorted([ (sum(p), p) for p in points ])[0][1]
+        ox, oy = sorted([(sum(p), p) for p in points])[0][1]
         x = ox
         y = oy
-        ex = None            
+        ex = None
 
         while 1:
             x += 1
@@ -58,8 +57,8 @@ def simplify(all_points, tilewidth, tileheight):
                 if ex == None:
                     ex = x - 1
 
-                if ((ox, y+1) in points):
-                    if x == ex + 1 :
+                if ((ox, y + 1) in points):
+                    if x == ex + 1:
                         y += 1
                         x = ox
 
@@ -67,17 +66,17 @@ def simplify(all_points, tilewidth, tileheight):
                         y -= 1
                         break
                 else:
-                    if x <= ex: y-= 1
+                    if x <= ex: y -= 1
                     break
 
-        c_rect = Rect(ox*tilewidth,oy*tileheight,\
-                     (ex-ox+1)*tilewidth,(y-oy+1)*tileheight)
+        c_rect = Rect(ox * tilewidth, oy * tileheight, \
+                      (ex - ox + 1) * tilewidth, (y - oy + 1) * tileheight)
 
         rects.append(c_rect)
 
-        rect = Rect(ox,oy,ex-ox+1,y-oy+1)
-        kill = [ p for p in points if rect.collidepoint(p) ]
-        [ points.remove(i) for i in kill ]
+        rect = Rect(ox, oy, ex - ox + 1, y - oy + 1)
+        kill = [p for p in points if rect.collidepoint(p)]
+        [points.remove(i) for i in kill]
 
         if points:
             pick_rect(points, rects)

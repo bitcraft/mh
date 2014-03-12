@@ -4,9 +4,10 @@
 Contains various games/testing modes for MH
 """
 
+import pygame
+
 from lib2d import res, gfx
 from lib2d.game import Game
-import pygame
 
 
 profile = 0
@@ -69,7 +70,6 @@ if __name__ == "__main__":
     if profile:
         import cProfile
         import pstats
-        import sys
 
         game = FullGame()
         cProfile.run('game.start()', "results.prof")
@@ -80,9 +80,10 @@ if __name__ == "__main__":
         #p.sort_stats('time').print_stats(20)
 
     else:
-        FullGame().start()
-        #CutsceneTest().start()
+        import buildworld
         #FullGame().start()
+        #CutsceneTest().start()
+        WorldTest().start()
 
 
 

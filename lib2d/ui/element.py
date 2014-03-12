@@ -1,7 +1,6 @@
 import pygame
 
 
-
 class Element(object):
     """
     an element must be attached to a frame
@@ -13,8 +12,10 @@ class Element(object):
         self._rect = None
 
         from lib2d import ui
+
         if not isinstance(frame, ui.Frame) and frame is not None:
-            print self, frame
+            print
+            self, frame
             raise Exception, "element does not have a frame set"
 
 
@@ -33,7 +34,8 @@ class Element(object):
 
 
     def draw(self, surface):
-        print "DEBUG: {} has no draw()".format(self.__class__.__name__)
+        print
+        "DEBUG: {} has no draw()".format(self.__class__.__name__)
 
 
     def resize(self):

@@ -1,17 +1,15 @@
-from renderer import Camera
+import math
 
+from pygame import Rect
+from pygame.transform import scale, rotate
+
+from renderer import Camera
 from lib2d.cursor import KeyCursor
 from lib2d.gamestate import GameState
 from lib2d.tilemap import BufferedTilemapRenderer
 from lib2d.statedriver import driver as sd
 from lib2d.buttons import *
 import lib2d.res as res
-
-from pygame import Surface, Rect, draw
-from pygame.transform import scale, rotate
-import math
-
-import os.path, time
 
 HAND_OPEN = 0
 HAND_CLOSED = 1

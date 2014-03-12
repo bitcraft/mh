@@ -1,17 +1,16 @@
+import pygame
+
 from lib2d.ui import Element, VirtualMapElement, VirtualAvatarElement
 from lib2d.ui import GraphicIcon, RoundMenu
 from lib2d.image import Image, ImageTile
 from lib2d.mouse.tools.mousetool import MouseTool
 from lib2d import res
 
-import pygame
-
-
 
 def buildActionMenu(element):
     actions = element.avatar.queryActions(None)
     if actions:
-        icons = [ GraphicIcon(element.frame, a.icon, None) for a in actions ]
+        icons = [GraphicIcon(element.frame, a.icon, None) for a in actions]
         menu = RoundMenu(element.frame, element)
         menu.setIcons(icons)
         return menu
@@ -61,10 +60,10 @@ class PanTool(MouseTool, Element):
 
                 self.openMenu = movementMenu(element, self.focus_element)
                 self.openMenu.open(point)
-                self.onSelectElement(None)   # clear the focus
+                self.onSelectElement(None)  # clear the focus
 
             else:
-                self.onSelectElement(None)   # clear the focus
+                self.onSelectElement(None)  # clear the focus
 
     def onSelectElement(self, element=None):
         self.focus_element = element
@@ -76,7 +75,7 @@ class PanTool(MouseTool, Element):
         if element:
             w, h = self.frame.rect.size
             icon = GraphicIcon(element.frame, element.avatar.faceImage, None)
-            icon.rect = pygame.Rect(w-32,0,32,32)
+            icon.rect = pygame.Rect(w - 32, 0, 32, 32)
             icon.load()
             element.frame.addElement(icon)
             self.element_icon = icon
@@ -89,8 +88,7 @@ class PanTool(MouseTool, Element):
 
             dx, dy = point - origin
             cx, cy = self.drag_initial_center
-            element.camera.center((cx-dy, cy-dx, 0))
-
+            element.camera.center((cx - dy, cy - dx, 0))
 
 
 def movementMenu(element, target):
@@ -99,7 +97,6 @@ def movementMenu(element, target):
         icon.unload()
 
     def func(menu):
-        import lib.blacksmith as b
         menu.close()
 
         camera = menu.element.camera
@@ -116,10 +113,10 @@ def movementMenu(element, target):
             y, x = node
             icon = GraphicIcon(element.frame, image, closer)
             icon.load()
-            icon.rect = pygame.Rect(x*16, y*16, 16, 16)
-            menu.frame.addElement(icon) 
+            icon.rect = pygame.Rect(x * 16, y * 16, 16, 16)
+            menu.frame.addElement(icon)
 
-    image = ImageTile("spellicons.png", tile=(20,3), tilesize=(32,32))
+    image = ImageTile("spellicons.png", tile=(20, 3), tilesize=(32, 32))
 
     m = RoundMenu(element.frame, element)
     a = GraphicIcon(element.frame, image, func, [m])
@@ -130,6 +127,7 @@ def movementMenu(element, target):
 def testMenu(element):
     def func(menu):
         import lib.blacksmith as b
+
         menu.close()
 
         anvil = b.Anvil()
@@ -145,5 +143,5 @@ def testMenu(element):
     b = GraphicIcon(element.frame, image, func, [m])
     c = GraphicIcon(element.frame, image, func, [m])
     d = GraphicIcon(element.frame, image, func, [m])
-    m.setIcons([a,b,c,d])
+    m.setIcons([a, b, c, d])
     return m

@@ -1,9 +1,9 @@
-from lib2d.objects import AvatarObject
-from lib2d.buttons import *
-from conditions import *
-from math import cos, sin, degrees
+from math import cos, sin
 
-from dialog import *
+from lib2d.objects import AvatarObject
+from .conditions import *
+from .dialog import *
+
 
 icon_size = (16,16)
 

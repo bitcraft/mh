@@ -1,28 +1,28 @@
+from collections import namedtuple
+import math
+import itertools
+
 from objects import GameObject
 from image import Image, ImageTile
-from sound import Sound
 import res
-
-from collections import namedtuple
-import math, itertools
 
 
 pi2 = math.pi * 2
 
 box = namedtuple('Box', 'width height')
 
-
 """
 animations may be used by a class that does not need the images, but may need
 to know when an animation finishes, where it is at, etc (such as a server).
 """
+
 
 def calcFrameSize(filename, frames, directions):
     """
     load the images for the animation and set the size of each frame
     """
 
-    width, height = res.loadImage(filename, 0,0,1).get_size()
+    width, height = res.loadImage(filename, 0, 0, 1).get_size()
     return (width / frames, height / directions)
 
 
@@ -46,7 +46,7 @@ class Animation(GameObject):
     TODO: implement some sort of timing, rather than relying on frames
     """
 
-    def __init__(self,name,image,frames,directions=1,timing=100,sound=None):
+    def __init__(self, name, image, frames, directions=1, timing=100, sound=None):
         GameObject.__init__(self)
 
         assert isinstance(image, Image)
@@ -99,7 +99,7 @@ class Animation(GameObject):
         tw = iw / self.real_frames
         th = ih / self.directions
         self.images = [None] * (self.directions * self.real_frames)
-     
+
         d = 0
         for y in range(0, ih, th):
             #if d == ih/th: d = 0
@@ -109,7 +109,7 @@ class Animation(GameObject):
                 except ValueError as e:
                     msg = "Invalid tiles selected for image {}"
                     raise ValueError, msg.format(self.image.filename)
-                self.images[(x/tw)+d*self.real_frames] = frame
+                self.images[(x / tw) + d * self.real_frames] = frame
             d += 1
 
 
@@ -131,10 +131,10 @@ class Animation(GameObject):
         d = int(math.ceil(direction / pi2 * (self.directions - 1)))
 
         try:
-            return self.images[number+d*self.real_frames]
+            return self.images[number + d * self.real_frames]
         except IndexError:
-            msg="{} cannot find image for animation ({}/{})"
-            raise IndexError, msg.format(self, number+d*self.real_frames,
+            msg = "{} cannot find image for animation ({}/{})"
+            raise IndexError, msg.format(self, number + d * self.real_frames,
                                          len(self.images))
 
 
@@ -154,7 +154,8 @@ class StaticAnimation(Animation):
         try:
             assert isinstance(image, Image) or isinstance(image, ImageTile)
         except AssertionError:
-            print name, image
+            print
+            name, image
             raise
 
         self.image = image
@@ -169,7 +170,8 @@ class StaticAnimation(Animation):
         """
 
         self.image = self.image.load()
-        print "loading, static", self, self.image 
+        print
+        "loading, static", self, self.image
 
     def returnNew(self):
         return self

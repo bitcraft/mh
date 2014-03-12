@@ -4,7 +4,9 @@ use ordered dithering to halftone them
 """
 
 from subprocess import call
-import os, math
+import os
+import math
+
 
 tempfile = "blank.png"
 
